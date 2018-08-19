@@ -1,0 +1,15 @@
+# Copy this to /etc/systemd/system/
+# Copy nexus433 to /usr/local/bin
+# Copy nexus433.ini to /etc
+
+[Unit]
+Description=433MHz sensor receiver
+After=network-online.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/nexus433
+
+[Install]
+WantedBy=multi-user.target
