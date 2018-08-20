@@ -75,11 +75,11 @@ The meaning of bits:
 |---------|----|---------|---|---------|-------------|------|----------|
 | Meaning | ID | Battery | 0 | Channel | Temperature | 1111 | Humidity |
 
-1. *ID* - unique ID; Digoo and Sencor keeps ID even when battery is replaced.
-2. *Battery* - low battery indicator; 1 - battery ok, 0 - low battery
-3. *Channel* - channel number, 0 - first channel, 1 - second and so on.
-4. *Temperature* - signed temperature in Celsius degrees.
-5. *Humidity* - humidity
+1. *ID* &ndash; unique ID; Sencor generates new ID when battery is changed, Digoo keeps ID all the time.
+2. *Battery* &ndash; low battery indicator; 1 &ndash; battery ok, 0 &ndash; low battery
+3. *Channel* &ndash; channel number, 0 &ndash; first channel, 1 &ndash; second and so on.
+4. *Temperature* &ndash; signed temperature in Celsius degrees.
+5. *Humidity* &ndash; humidity
 
 Every bit starts with 500 µs high pulse. The length of the following low
 state decides if this is `1` (2000 µs) or `0` (1000 µs).
@@ -210,7 +210,7 @@ For example to ignore transmitter 0xAE on channel 1 add:
 #### `[substitute]`
 
 This section allows to change original ID of transmitter to another number. This may be useful
-when one of the sensors is broken and you do not want to reconfigure existing infrastructure.
+when the sensors is broken or the battery was changed and you do not want to reconfigure existing infrastructure.
 
 Key must be ID of the transmitted and the value new ID.
 For example, to change 0xAE channel 1 to 0x78 channel 2 use: `ae00=7801`.
