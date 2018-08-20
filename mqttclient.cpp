@@ -60,7 +60,7 @@ void MQTTClient::SensorUpdate(uint16_t id, const Packet& packet)
     Substitute(id);
 
     const char* payload_fmt = "{ "
-            "\"temperature\": %d.%d, "
+            "\"temperature\": %d.%u, "
             "\"humidity\": %d, "
             "\"battery\": \"%s\", "
             "\"quality\": %d "
@@ -69,8 +69,8 @@ void MQTTClient::SensorUpdate(uint16_t id, const Packet& packet)
     char payload[256];
     snprintf(payload, sizeof(payload),
             payload_fmt,
-            packet.GetTemperature() / 10,
-            packet.GetTemperature() % 10,
+            packet.GetTemperature(),
+            packet.GetTemperatureFraction(),
             packet.GetHumidity(),
             packet.GetBattery() ? Config::transmitter::battery_normal.c_str() : Config::transmitter::battery_low.c_str(),
             packet.GetQualityPercent()

@@ -37,114 +37,129 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class Packet
 {
 public:
-	Packet(uint64_t raw)
-	{
-		m_Raw = raw;
-		m_FrameCounter = 0;
-	}
+  Packet(uint64_t raw)
+  {
+    m_Raw = raw;
+    m_FrameCounter = 0;
+  }
 
-	Packet()
-	{
-		m_Raw=0;
-		m_FrameCounter=0;
-	}
+  Packet()
+  {
+    m_Raw=0;
+    m_FrameCounter=0;
+  }
 
-	uint16_t GetSenderId() const
-	{
-		return GetId() << 8 | GetChannel();
-	}
+  uint16_t GetSenderId() const
+  {
+    return GetId() << 8 | GetChannel();
+  }
 
-	uint8_t GetId() const
-	{
-		return (m_Raw >> 28) & 0xFF;
-	}
+  uint8_t GetId() const
+  {
+    return (m_Raw >> 28) & 0xFF;
+  }
 
-	uint8_t GetChannel() const
-	{
-		return (m_Raw >> 24) & 0x03;
-	}
+  uint8_t GetChannel() const
+  {
+    return (m_Raw >> 24) & 0x03;
+  }
 
-	int GetTemperature() const
-	{
-		return (m_Raw >> 12 & 0x0FFF);
-	}
+  // Returns temperature * 10
+  int16_t GetTemperature10() const
+  {
+    int16_t t = m_Raw >> 12 & 0x0FFF;
+    return 0x0800 & t ? 0xF000 | t  : t;
+  }
 
-	uint8_t GetHumidity() const
-	{
-		return m_Raw & 0xFF;
-	}
+  // Returns fraction of temperature, e.g. for -10.7C returns 7.
+  uint16_t GetTemperatureFraction() const
+  {
+    int16_t t =  GetTemperature10();
+    return t > 0 ? t%10 : -t%10;
+  }
 
-	uint8_t GetConst() const
-	{
-		return (m_Raw >> 8) & 0x0F;
-	}
+  // Returns integer part of temperature, e.g. for -10.7 returns -10
+  int16_t GetTemperature() const
+  {
+    return GetTemperature10() / 10;
+  }
 
-	uint8_t GetBattery() const
-	{
-		return (m_Raw >> 27) & 0x01;
-	}
+  uint8_t GetHumidity() const
+  {
+    return m_Raw & 0xFF;
+  }
 
-	bool IsValid() const
-	{
-		return
-			GetConst() == 0x0F &&
-			GetHumidity() <= 100 &&
-			GetTemperature() > -400 &&
-			GetTemperature() < 600; //arbitrary chosen valid range
-	}
+  uint8_t GetConst() const
+  {
+    return (m_Raw >> 8) & 0x0F;
+  }
 
-	uint64_t GetRaw() const
-	{
-		return m_Raw;
-	}
+  uint8_t GetBattery() const
+  {
+    return (m_Raw >> 27) & 0x01;
+  }
 
-	void SetRaw(uint64_t packet)
-	{
-		m_Raw = packet;
-	}
+  bool IsValid() const
+  {
+    return
+      GetConst() == 0x0F &&
+      GetHumidity() <= 100 &&
+      GetTemperature10() > -400 &&
+      GetTemperature10() < 600; //arbitrary chosen valid range
+  }
 
-	uint8_t IncreaseFrameCounter()
-	{
-	    if( m_FrameCounter < 0xFF )
-	    {
-	        m_FrameCounter++;
-	    }
+  uint64_t GetRaw() const
+  {
+    return m_Raw;
+  }
 
-	    return m_FrameCounter;
-	}
+  void SetRaw(uint64_t packet)
+  {
+    m_Raw = packet;
+  }
+
+  uint8_t IncreaseFrameCounter()
+  {
+      if( m_FrameCounter < 0xFF )
+      {
+          m_FrameCounter++;
+      }
+
+      return m_FrameCounter;
+  }
 
     void ResetFrameCounter()
     {
         m_FrameCounter=0;
     }
 
-	uint8_t GetFrameCounter() const
-	{
-	    return m_FrameCounter;
-	}
+  uint8_t GetFrameCounter() const
+  {
+      return m_FrameCounter;
+  }
 
-	uint8_t GetQualityPercent() const
-	{
-	    return ((m_FrameCounter * 100) / 12);
-	}
+  uint8_t GetQualityPercent() const
+  {
+      return ((m_FrameCounter * 100) / 12);
+  }
 
-	void Substitute(uint16_t newId)
-	{
-	    uint64_t id = newId >> 8;
-	    uint64_t ch = newId & 0x0003;
+  void Substitute(uint16_t newId)
+  {
+      uint64_t id = newId >> 8;
+      uint64_t ch = newId & 0x0003;
 
-	    m_Raw &= ~(0xFFLLU << 28);
-	    m_Raw |= (id << 28 );
+      m_Raw &= ~(0xFFLLU << 28);
+      m_Raw |= (id << 28 );
 
-	    m_Raw &= ~(0x03LLU << 24);
-	    m_Raw |= (ch << 24);
-	}
+      m_Raw &= ~(0x03LLU << 24);
+      m_Raw |= (ch << 24);
+  }
 
-	inline bool operator< (const Packet& rhs) const { return m_Raw < rhs.GetRaw(); }
-	inline bool operator== (const Packet& rhs) const { return m_Raw == rhs.GetRaw(); }
-	inline operator uint64_t() const { return m_Raw; }
+  inline bool operator< (const Packet& rhs) const { return m_Raw < rhs.GetRaw(); }
+  inline bool operator== (const Packet& rhs) const { return m_Raw == rhs.GetRaw(); }
+  inline operator uint64_t() const { return m_Raw; }
 
 protected:
-	uint64_t m_Raw;
-	uint8_t m_FrameCounter;
+  uint64_t m_Raw;
+  uint8_t m_FrameCounter;
 };
