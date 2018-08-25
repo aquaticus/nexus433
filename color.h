@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define ANSI_COLOR_RED "x1b[31m"
+#define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_GREEN "\x1b[32m"
 #define ANSI_COLOR_BRIGHT_GREEN "\x1b[92m"
 #define ANSI_COLOR_YELLOW "\x1b[33m"
