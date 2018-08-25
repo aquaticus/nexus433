@@ -247,12 +247,13 @@ If not specified default value of `433MHz Sensor Id:XX channel Y Quality` will b
 
 Install mosquitto C++ library
 ```bash
-sudo apt intstall -y libmosquittopp-dev
+sudo apt install -y libmosquittopp-dev
 ```
 
 Install libgpiod C library
 ```bash
 sudo apt install -y autoconf
+sudo apt install pkg-config
 sudo apt install -y libtool
 sudo apt install -y autoconf-archive
 git clone git://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
