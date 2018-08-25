@@ -188,6 +188,7 @@ Comments must begin with `;`.
 |`pin`|number|1|I/O pin number|
 |`resolution_us`|number|1|decoder desolution in microseconds. Lower is better but higher system load.|
 |`tolerance_us`|number|300|± tolerance of pulse length in microseconds.|
+|`internal_led`|string|   | LED device name from `/sys/class/leds` used to indicate new readings; disabled by default.  |
 
 #### `[mqtt]`
 
@@ -360,6 +361,23 @@ receives this information.
 When new sensor is detected `online` is published on sensor specific topic.
 The format is `nexus433/sensor/XXXX/connection`, where `XXXX` is 2 bytes sensor ID. When a sensor does not send
 any data during 90 seconds (this can be configured) on the very same topic `offline` is published.
+
+## LED
+
+It is possible to use one of the built-in LEDs to indicate new packets. When configured, every time  valid data is received LED will be on for 500 ms.
+
+To check available LEDs use: `ls /sys/class/leds`. Depending on your device number and names may differ.
+Here is the result for Orange Pi PC board:
+```
+orangepi:green:pwr   
+orangepi:red:status  
+```
+
+To use red LED modify nexus433.ini configuration file:
+```ini
+[receiver]
+internal_led=orangepi:red:status
+```
 
 # Start as a service
 

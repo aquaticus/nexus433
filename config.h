@@ -32,10 +32,10 @@ public:
 
   struct mqtt
   {
-	static std::string host;
-	static int port;
-	static std::string password;
-	static std::string user;
+  static std::string host;
+  static int port;
+  static std::string password;
+  static std::string user;
   };
 
   struct receiver
@@ -44,16 +44,17 @@ public:
     static int pin;
     static int resolution_us;
     static int tolerance_us;
+    static std::string internal_led;
   };
 
   struct transmitter
   {
     static int silent_timeout_sec;
     static int minimum_frames;
-	static bool discovery;
+    static bool discovery;
     static std::string battery_low;
-	static std::string battery_normal;
-	static std::string discovery_prefix;
+    static std::string battery_normal;
+    static std::string discovery_prefix;
   };
 
   static std::set<uint16_t> ignored;

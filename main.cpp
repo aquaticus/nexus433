@@ -34,16 +34,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "packetstorage.h"
 #include "mqttclient.h"
 #include "_VERSION"
+#include "led.h"
 
 Decoder* g_pDecoder = NULL; //for signal handler function
-
 #ifdef DEBUG
 int g_Verbose = 1;
 #else
 int g_Verbose = 0;
 #endif
 
-static int ProcessLoop(MQTTClient& mqtt, IDecoder& decoder, PacketStorage& storage)
+static int ProcessLoop(MQTTClient& mqtt, IDecoder& decoder, PacketStorage& storage, Led& led)
 {
     std::set<Packet> NewReadings;
     std::set<uint16_t> RemovedTransmitters;
@@ -55,6 +55,7 @@ static int ProcessLoop(MQTTClient& mqtt, IDecoder& decoder, PacketStorage& stora
 
     while ( !decoder.WaitForTermination(500) )
     {
+        led.Control(false);
         storage.UpdateStatus(NewReadings, RemovedTransmitters, NewTransmitters);
 
         // Sends all new Transmitters when MQTT connection is established.
@@ -94,6 +95,7 @@ static int ProcessLoop(MQTTClient& mqtt, IDecoder& decoder, PacketStorage& stora
         // re-established it sends only the most recent reading.
         if (NewReadings.size() > 0)
         {
+            led.Control(true);
             std::set<Packet>::iterator it = NewReadings.begin();
             while (it != NewReadings.end())
             {
@@ -338,12 +340,20 @@ int main(int argc, char** argv)
     if (mqtt.Connect(Config::mqtt::host.c_str(), Config::mqtt::port))
     {
         std::cerr << "Unable to connect to MQTT server." << std::endl;
+        gpiod_line_close_chip(line);
         return -7;
     }
 
-    std::cout << "Reading data from 433MHz receiver on " << Config::receiver::chip << " pin " << Config::receiver::pin
-            << "." << std::endl;
-
+    Led led;
+    if( Config::receiver::internal_led.size() > 0)
+    {
+      if( !led.Open(Config::receiver::internal_led) )
+      {
+        std::cerr << "Cannot open internal LED device " << Config::receiver::internal_led << std::endl;
+        gpiod_line_close_chip(line);
+        return -12;
+      }
+    }
     PacketStorage storage;
     Decoder decoder(storage, line, Config::receiver::tolerance_us, Config::receiver::resolution_us);
     PacketStorage::SetSilentTimeoutSec( Config::transmitter::silent_timeout_sec );
@@ -353,11 +363,14 @@ int main(int argc, char** argv)
     std::signal(SIGHUP, terminate_handler);
     std::signal(SIGTERM, terminate_handler);
 
-    rv = ProcessLoop(mqtt, decoder, storage);
+    std::cout << "Reading data from 433MHz receiver on " << Config::receiver::chip << " pin " << Config::receiver::pin
+            << "." << std::endl;
 
-    gpiod_chip_close(chip);
+    rv = ProcessLoop(mqtt, decoder, storage, led);
 
+    gpiod_line_close_chip(line);
     mqtt.disconnect();
+    led.Close();
 
     if( daemon_flag )
     {
