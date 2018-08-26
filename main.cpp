@@ -131,7 +131,7 @@ static int ProcessLoop(MQTTClient& mqtt, IDecoder& decoder, PacketStorage& stora
 
         }
 
-        if (mqtt.loop(1000))
+        if (mqtt.loop(1000) != MOSQ_ERR_SUCCESS)
         {
             puts("MQTT Reconnecting");
             mqtt.reconnect();
@@ -335,14 +335,6 @@ int main(int argc, char** argv)
         return -3;
     }
 
-    MQTTClient mqtt(NEXUS433);
-
-    if (mqtt.Connect(Config::mqtt::host.c_str(), Config::mqtt::port))
-    {
-        std::cerr << "Unable to connect to MQTT server." << std::endl;
-        gpiod_line_close_chip(line);
-        return -7;
-    }
 
     Led led;
     if( Config::receiver::internal_led.size() > 0)
@@ -354,6 +346,16 @@ int main(int argc, char** argv)
         return -12;
       }
     }
+
+    MQTTClient mqtt(NEXUS433);
+
+    if (mqtt.Connect(Config::mqtt::host.c_str(), Config::mqtt::port))
+    {
+        std::cerr << "Unable to connect to MQTT server." << std::endl;
+        gpiod_line_close_chip(line);
+        return -7;
+    }
+
     PacketStorage storage;
     Decoder decoder(storage, line, Config::receiver::tolerance_us, Config::receiver::resolution_us);
     PacketStorage::SetSilentTimeoutSec( Config::transmitter::silent_timeout_sec );

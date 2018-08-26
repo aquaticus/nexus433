@@ -16,9 +16,22 @@ void Led::Control(bool on)
 
 bool Led::Open(std::string device)
 {
+  const std::string path("/sys/class/leds/");
   if( m_InternalLed < 0 )
   {
-    std::string path("/sys/class/leds/");
+    std::string trigger =  path + device + "/trigger";
+    int fd = open(trigger.c_str(), O_WRONLY);
+    if( fd < 0 )
+    {
+      return false;
+    }
+    else
+    {
+      const char none[] = "none";
+      write(fd, none, sizeof(none));
+      close(fd);
+    }
+
     std::string dev =  path + device + "/brightness";
 
     m_InternalLed = open(dev.c_str(), O_WRONLY);
