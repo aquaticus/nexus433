@@ -83,6 +83,7 @@ The meaning of bits:
 
 Every bit starts with 500 µs high pulse. The length of the following low
 state decides if this is `1` (2000 µs) or `0` (1000 µs).
+There is 4000 µs long low state period before every 36 bits.
 
 ![Nexus protocol timing](pics/nexus_protocol.png)
 
