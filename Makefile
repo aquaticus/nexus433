@@ -3,7 +3,7 @@ CXX=g++
 CXXFLAGS=-std=c++11 -Wall -O3 -Wno-psabi $(DEBUG)
 BIN=nexus433
 LIBS=-lgpiod -lpthread -lmosquittopp
-
+CONFIG_FILE=/etc/nexus433.ini
 SRC=$(wildcard *.cpp)
 OBJ=$(SRC:%.cpp=%.o)
 
@@ -15,9 +15,15 @@ clean:
 	rm -f $(BIN)
 
 install:
+
 	cp nexus433 /usr/local/bin
 	cp nexus433.service /etc/systemd/system/
-	cp nexus433.ini /etc
+ifneq ("$(wildcard $(CONFIG_FILE))","")
+	cp nexus433.ini $(CONFIG_FILE).install
+	@echo "Existing config file not destroyed. Created installation config file $(CONFIG_FILE).install."
+else
+	cp nexus433.ini $(CONFIG_FILE)
+endif
 
 uninstall:
 	rm -f /usr/local/bin/nexus433
