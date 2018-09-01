@@ -27,6 +27,11 @@ string Config::mqtt::host = "127.0.0.1";
 int Config::mqtt::port = 1883;
 string Config::mqtt::password="";
 string Config::mqtt::user="";
+std::string Config::mqtt::cafile;
+std::string Config::mqtt::capath;
+std::string Config::mqtt::certfile;
+std::string Config::mqtt::keyfile;
+std::string Config::mqtt::keypass;
 
 string Config::receiver::chip="/dev/gpiochip0";
 int Config::receiver::pin=1;
@@ -63,6 +68,12 @@ bool Config::Load(const char* filename)
   Config::mqtt::port = ini.GetInteger("mqtt", "port", Config::mqtt::port);
   Config::mqtt::password = ini.Get("mqtt", "password", Config::mqtt::password);
   Config::mqtt::user=ini.Get("mqtt", "user", Config::mqtt::user);
+
+  Config::mqtt::cafile=ini.Get("mqtt", "cafile", "");
+  Config::mqtt::capath=ini.Get("mqtt", "capath", "");
+  Config::mqtt::certfile=ini.Get("mqtt", "certfile", "");
+  Config::mqtt::keyfile=ini.Get("mqtt", "keyfile", "");
+  Config::mqtt::keypass=ini.Get("mqtt", "keypass", "");
 
   Config::receiver::chip=ini.Get("receiver", "chip", Config::receiver::chip);
   Config::receiver::pin=ini.GetInteger("receiver", "pin", Config::receiver::pin);

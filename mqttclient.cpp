@@ -24,6 +24,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "packetstorage.h"
 #include <string.h>
 
+static int get_pem_password(char *buf, int size, int rwflag, void *userdata)
+{
+  if( size < (int)Config::mqtt::keypass.size() )
+  {
+    return 0; //buffer too small to store pass
+  }
+
+  Config::mqtt::keypass.copy(buf, Config::mqtt::keypass.size() );
+
+  return Config::mqtt::keypass.size();
+}
+
 int MQTTClient::Connect(const char* host, int port)
 {
     const char offline[]="offline";
@@ -31,7 +43,19 @@ int MQTTClient::Connect(const char* host, int port)
     {
         username_pw_set(Config::mqtt::user.c_str(), Config::mqtt::password.c_str());
     }
+
     will_set(NEXUS433 "/connection", sizeof(offline)-1, "offline", 0, true );
+
+    if( !Config::mqtt::cafile.empty() || !Config::mqtt::capath.empty() )
+    {
+      tls_set(
+              Config::mqtt::cafile.empty() ? NULL : Config::mqtt::cafile.c_str(),
+              Config::mqtt::capath.empty() ? NULL : Config::mqtt::capath.c_str(),
+              Config::mqtt::certfile.empty() ? NULL : Config::mqtt::certfile.c_str(),
+              Config::mqtt::keyfile.empty() ? NULL : Config::mqtt::keyfile.c_str(),
+              get_pem_password
+            );
+    }
 
     return connect(host, port, 60);
 }
@@ -51,7 +75,7 @@ void MQTTClient::on_connect(int rc)
 
 void MQTTClient::on_disconnect(int rc)
 {
-    DEBUG_PRINTF("MQTT Disconnected\n");
+    printf("MQTT Disconnected. %s\n", rc == 0 ? "" : mosquitto_connack_string(rc) );
     m_Connected = false;
 }
 

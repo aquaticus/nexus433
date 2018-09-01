@@ -349,9 +349,10 @@ int main(int argc, char** argv)
 
     MQTTClient mqtt(NEXUS433);
 
-    if (mqtt.Connect(Config::mqtt::host.c_str(), Config::mqtt::port))
+    if (int rc = mqtt.Connect(Config::mqtt::host.c_str(), Config::mqtt::port))
     {
         std::cerr << "Unable to connect to MQTT server." << std::endl;
+        std::cerr << mosquitto_connack_string(rc) << std::endl;
         gpiod_line_close_chip(line);
         return -7;
     }

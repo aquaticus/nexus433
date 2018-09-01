@@ -32,10 +32,15 @@ public:
 
   struct mqtt
   {
-  static std::string host;
-  static int port;
-  static std::string password;
-  static std::string user;
+    static std::string host;
+    static int port;
+    static std::string password;
+    static std::string user;
+    static std::string cafile;
+    static std::string capath;
+    static std::string certfile;
+    static std::string keyfile;
+    static std::string keypass;
   };
 
   struct receiver

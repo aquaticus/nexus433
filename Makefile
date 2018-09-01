@@ -2,7 +2,7 @@ DEBUG=
 CXX=g++
 CXXFLAGS=-std=c++11 -Wall -O3 -Wno-psabi $(DEBUG)
 BIN=nexus433
-LIBS=-lgpiod -lpthread -lmosquittopp
+LIBS=-lgpiod -lpthread -lmosquittopp -lmosquitto
 CONFIG_FILE=/etc/nexus433.ini
 SRC=$(wildcard *.cpp)
 OBJ=$(SRC:%.cpp=%.o)

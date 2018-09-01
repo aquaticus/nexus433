@@ -199,6 +199,25 @@ Comments must begin with `;`.
 |`port`|string|1883|MQTT port number.|
 |`user`|string||MQTT user name.|
 |`password`|string||MQTT password.|
+|`cafile`|string||Path to a file containing the PEM encoded trusted CA certificate files.|
+|`capath`|string||Path to a directory containing the PEM encoded trusted CA certificate files.|
+|`certfile`|string||Path to a file containing the PEM encoded certificate file.|
+|`keyfile`|string||Path to a file containing the PEM encoded private key. If encrypted, password must be passed in `keypass`.|
+|`keypass`|string||Password to encrypted `keyfile`.|
+
+##### SSL/TLS support
+
+To enable SSL/TLS encrypted connection to MQTT broker specify CA certificate and optionally client certificate.
+
+For CA certificate, one of two options must be set: `capath` or `cafile`.
+For `capath` to work correctly, the certificates files must have `.pem` as the extension and you must run `openssl rehash <path to capath>` each time you add or remove a certificate.
+
+If `capath` or `cafile` is specified without any other SSL/TLS option the client will verify Mosquitto server but the server will be unable to verify the client.
+The connection will be encrypted.
+
+To specify client certificate set `certfile`, `keyfile` and optionally `keypass`.
+
+Please note that the traffic to MQTT broker would be encrypted but temperate and humidity data from sensors is available for everyone as radio transmission is not encrypted in any way.
 
 #### `[ignore]`
 
