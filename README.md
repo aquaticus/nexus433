@@ -269,7 +269,7 @@ sudo ldconfig
 Clone git repository:
 
 ```bash
-git clone htpps:/github/aquaticus/nexus433
+git clone https://github.com/aquaticus/nexus433
 cd nexus433
 make
 sudo make install
