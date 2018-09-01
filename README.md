@@ -75,7 +75,7 @@ The meaning of bits:
 |---------|----|---------|---|---------|-------------|------|----------|
 | Meaning | ID | Battery | 0 | Channel | Temperature | 1111 | Humidity |
 
-1. *ID* &ndash; unique ID; Sencor generates new ID when battery is changed, Digoo keeps ID all the time.
+1. *ID* &ndash; unique ID; Sencor generates new ID when battery is changed, Digoo keeps the same ID all the time.
 2. *Battery* &ndash; low battery indicator; 1 &ndash; battery ok, 0 &ndash; low battery
 3. *Channel* &ndash; channel number, 0 &ndash; first channel, 1 &ndash; second and so on.
 4. *Temperature* &ndash; signed temperature in Celsius degrees.
@@ -187,7 +187,7 @@ Comments must begin with `;`.
 |---|----|-------|-----------|
 |`chip`|string|/dev/gpiochip0|GPIO device|
 |`pin`|number|1|I/O pin number|
-|`resolution_us`|number|1|decoder desolution in microseconds. Lower is better but higher system load.|
+|`resolution_us`|number|1|decoder resolution in microseconds. Lower is better but higher system load.|
 |`tolerance_us`|number|300|± tolerance of pulse length in microseconds.|
 |`internal_led`|string|   | LED device name from `/sys/class/leds` used to indicate new readings; disabled by default.  |
 
@@ -217,7 +217,7 @@ The connection will be encrypted.
 
 To specify client certificate set `certfile`, `keyfile` and optionally `keypass`.
 
-Please note that the traffic to MQTT broker would be encrypted but temperate and humidity data from sensors is available for everyone as radio transmission is not encrypted in any way.
+>:information_source: Please note that the traffic to MQTT broker would be encrypted but temperate and humidity data from sensors is available for everyone as radio transmission is not encrypted in any way.
 
 #### `[ignore]`
 
@@ -306,9 +306,8 @@ and data to pin #11	(GPIO17).
 |`GND`|`6` (GND)|`6` (GND)|
 |`DATA` | `11` (GPIO17)  | `11` (PA1) |
 
-<aside class="notice">
-If you have no free 5V pin you can use 3.3V pin. 433 MHz receivers work with 3.3V as well.
-</aside>
+
+>:information_source: If you have no free 5V pin you can use 3.3V pin. 433 MHz receivers work with 3.3V as well.
 
 ![Raspberry Pi with 433MHz receiver](pics/rpi.jpg)
 
@@ -332,7 +331,7 @@ You should see new readings on the screen:
 ```
 Loading configuration from /etc/nexus433.ini
 Reading data from 433MHz receiver on /dev/gpiochip0 pin 17.
-Decoder resolution: 1 ms; tolerance: 300 ms
+Decoder resolution: 1 µs; tolerance: 300 µs
 Connected to MQTT broker.
 New transmitter 0x5c channel 2
 0x5c910ff38 Id:0x5c Channel:2 Temperature: 27.1°C Humidity: 56% Battery:1 Frames:12 (100%)
@@ -343,9 +342,9 @@ The next step is to monitor MQTT data. Install mosquitto client:
 ```bash
 sudo apt install mosquitto-clients
 ```
-and use `mosquitto-sub` to subscribe to interesting topics.
+and use `mosquitto_sub` to subscribe to interesting topics.
 ```bash
-mosquitto-sub -v -t "nexus433/#"
+mosquitto_sub -v -t "nexus433/#"
 ```
 Of course add `-h` and `-P` options if needed to specify MQTT host and port.
 You should see:
@@ -353,11 +352,11 @@ You should see:
 nexus433/sensor/5c01/state { "temperature": 27.3, "humidity": 56, "battery": "100", "quality": 100 }
 ```
 Now lets see what other data is sent to MQTT broker.
-Stop both `nexus433` and `mosquitto-sub` by pressing `Control-C`.
+Stop both `nexus433` and `mosquitto_sub` by pressing `Control-C`.
 
 Run `mosquitto-sub` first and subscribe to additional topic:
 ```bash
-mosquitto-sub -v -t "nexus433/#" -t "homeassistant/#"
+mosquitto_sub -v -t "nexus433/#" -t "homeassistant/#"
 ```
 Now run:
 
@@ -366,7 +365,7 @@ Now run:
 |`sudo nexus433 --verbose -n 17`|`sudo nexus433 --verbose -n 1`|
 
 and wait for the reading (you can use battery trick to limit waiting time).
-When you receive first data packets check `mosquitto-sub` output. This time it logged more lines:
+When you receive first data packets check `mosquitto_sub` output. This time it logged more lines:
 ```
 nexus433/connection offline
 nexus433/connection online
