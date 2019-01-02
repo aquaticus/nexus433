@@ -79,9 +79,9 @@ public:
   }
 
   // Returns integer part of temperature, e.g. for -10.7 returns -10
-  int16_t GetTemperature() const
+  double GetTemperature() const
   {
-    return GetTemperature10() / 10;
+    return GetTemperature10() / 10.0;
   }
 
   uint8_t GetHumidity() const
