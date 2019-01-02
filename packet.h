@@ -71,14 +71,7 @@ public:
     return 0x0800 & t ? 0xF000 | t  : t;
   }
 
-  // Returns fraction of temperature, e.g. for -10.7C returns 7.
-  uint16_t GetTemperatureFraction() const
-  {
-    int16_t t =  GetTemperature10();
-    return t > 0 ? t%10 : -t%10;
-  }
-
-  // Returns integer part of temperature, e.g. for -10.7 returns -10
+  // Returns temperature as double
   double GetTemperature() const
   {
     return GetTemperature10() / 10.0;

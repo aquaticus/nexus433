@@ -99,9 +99,9 @@ static int ProcessLoop(MQTTClient& mqtt, IDecoder& decoder, PacketStorage& stora
             std::set<Packet>::iterator it = NewReadings.begin();
             while (it != NewReadings.end())
             {
-                VERBOSE_PRINTF(ANSI_COLOR_BRIGHT_GREEN "0x%" PRIx64 " Id:0x%02x Channel:%d Temperature: %d.%u°C Humidity: %d%% Battery:%d Frames:%d (%d%%)\n" ANSI_COLOR_RESET,
+                VERBOSE_PRINTF(ANSI_COLOR_BRIGHT_GREEN "0x%" PRIx64 " Id:0x%02x Channel:%d Temperature: %.1f°C Humidity: %d%% Battery:%d Frames:%d (%d%%)\n" ANSI_COLOR_RESET,
                         it->GetRaw(), it->GetId(), it->GetChannel() + 1, it->GetTemperature(),
-                        it->GetTemperatureFraction(), it->GetHumidity(), it->GetBattery(), it->GetFrameCounter(), it->GetQualityPercent());
+                        it->GetHumidity(), it->GetBattery(), it->GetFrameCounter(), it->GetQualityPercent());
 
                 if (mqtt.IsConnected())
                 {
