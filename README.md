@@ -1,3 +1,5 @@
+Modified version for Digoo H8S remote sensor with LCD display
+
 ![logo](pics/logo.png)
 
 # Introduction

@@ -24,14 +24,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 * the data is grouped in 9 nibbles
-* [id0] [id1] [flags] [temp0] [temp1] [temp2] [const] [humi0] [humi1]
+* [0x9(4)] [id(8)] [lowBatt(1)] [test(1)] [channel(2)] [temp(12)] [0x0(1)] [humi(7)] [0x0(1)]
 *
 * The 8-bit id changes when the battery is changed in the sensor.
-* flags are 4 bits B 0 C C, where B is the battery status: 1=OK, 0=LOW
-* and CC is the channel: 0=CH1, 1=CH2, 2=CH3
+* test button pressed
+* channel: 0=CH1, 1=CH2, 2=CH3
 * temp is 12 bit signed scaled by 10
-* const is always 1111 (0x0F)
-* humidity is 8 bits
+* humidity is 7 bits  10==LL 110=HH
+* not sure about fixed constant in packet, they are not changing, may be extended resolution for future use?
 */
 
 class Packet
@@ -56,18 +56,18 @@ public:
 
   uint8_t GetId() const
   {
-    return (m_Raw >> 28) & 0xFF;
+    return (m_Raw >> 25) & 0xFF;
   }
 
   uint8_t GetChannel() const
   {
-    return (m_Raw >> 24) & 0x03;
+    return (m_Raw >> 21) & 0x03;
   }
 
   // Returns temperature * 10
   int16_t GetTemperature10() const
   {
-    int16_t t = m_Raw >> 12 & 0x0FFF;
+    int16_t t = m_Raw >> 9 & 0x0FFF;
     return 0x0800 & t ? 0xF000 | t  : t;
   }
 
@@ -79,24 +79,24 @@ public:
 
   uint8_t GetHumidity() const
   {
-    return m_Raw & 0xFF;
+    return m_Raw>>1 & 0x7F;
   }
 
   uint8_t GetConst() const
   {
-    return (m_Raw >> 8) & 0x0F;
+    return 0x0F;
   }
 
   uint8_t GetBattery() const
   {
-    return (m_Raw >> 27) & 0x01;
+    return ~(m_Raw >> 24) & 0x01;
   }
 
   bool IsValid() const
   {
     return
       GetConst() == 0x0F &&
-      GetHumidity() <= 100 &&
+      GetHumidity() <= 110 &&
       GetTemperature10() > -400 &&
       GetTemperature10() < 600; //arbitrary chosen valid range
   }
@@ -133,7 +133,7 @@ public:
 
   uint8_t GetQualityPercent() const
   {
-      return ((m_FrameCounter * 100) / 12);
+      return ((m_FrameCounter * 100) / 7);
   }
 
   void Substitute(uint16_t newId)
@@ -141,11 +141,11 @@ public:
       uint64_t id = newId >> 8;
       uint64_t ch = newId & 0x0003;
 
-      m_Raw &= ~(0xFFLLU << 28);
-      m_Raw |= (id << 28 );
+      m_Raw &= ~(0xFFLLU << 25);
+      m_Raw |= (id << 25 );
 
-      m_Raw &= ~(0x03LLU << 24);
-      m_Raw |= (ch << 24);
+      m_Raw &= ~(0x03LLU << 21);
+      m_Raw |= (ch << 21);
   }
 
   inline bool operator< (const Packet& rhs) const { return m_Raw < rhs.GetRaw(); }
