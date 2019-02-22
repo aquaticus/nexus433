@@ -55,6 +55,11 @@ public:
     return GetId() << 8 | GetChannel();
   }
 
+  uint8_t GetSensorType() const
+  {
+    return (m_Raw >> 33) & 0x0F;
+  }
+  
   uint8_t GetId() const
   {
     return (m_Raw >> 25) & 0xFF;
@@ -134,7 +139,9 @@ public:
 
   uint8_t GetQualityPercent() const
   {
-      return ((m_FrameCounter * 100) / 7);
+      int expectedCount = 7; //sensorType==9
+      if(GetSensorType() == 4) expectedCount = 1;
+      return ((m_FrameCounter * 100) / expectedCount);
   }
 
   void Substitute(uint16_t newId)
