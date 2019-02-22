@@ -24,8 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 * the data is grouped in 9 nibbles
-* [0x9(4)] [id(8)] [lowBatt(1)] [test(1)] [channel(2)] [temp(12)] [0x0(1)] [humi(7)] [0x0(1)]
+* [0xfixid(4)] [id(8)] [lowBatt(1)] [test(1)] [channel(2)] [temp(12)] [0x0(1)] [humi(7)] [0x0(1)]
 *
+* fixid: fixed part of id?, does not changes with battery replacement, second sensor has different value
 * The 8-bit id changes when the battery is changed in the sensor.
 * test button pressed
 * channel: 0=CH1, 1=CH2, 2=CH3
