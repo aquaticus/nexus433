@@ -164,7 +164,7 @@ PL port is the first assigned to chip number 2.
 Thanks to configuration file you can alter the way program behaves. The file is typical INI file
 divided into section. Every section got its own configuration keys.
 
-By default program tries to open `/etc/nexus433` file. This location can be changed using `-g/--config`
+By default program tries to open `/etc/nexus433.ini` file. This location can be changed using `-g/--config`
 command line option.
 
 Strings must be entered without `"` characters. Boolean values accepted: `true`/`false`, `yes`/`no`, `1`/`0`.
@@ -266,6 +266,13 @@ If not specified default value of `433MHz Sensor Id:XX channel Y Quality` will b
 
 # Installation
 
+Build system is based on cmake.
+
+Install cmake
+```bash
+sudo apt install -y cmake
+```
+
 Install mosquitto C++ library
 ```bash
 sudo apt install -y libmosquittopp-dev
@@ -274,7 +281,7 @@ sudo apt install -y libmosquittopp-dev
 Install libgpiod C library
 ```bash
 sudo apt install -y autoconf
-sudo apt install pkg-config
+sudo apt install -y pkg-config
 sudo apt install -y libtool
 sudo apt install -y autoconf-archive
 git clone git://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
@@ -289,10 +296,73 @@ Clone git repository:
 
 ```bash
 git clone https://github.com/aquaticus/nexus433
-cd nexus433
-make
-sudo make install
 ```
+
+## Build
+
+First call cmake, you do it once.
+```bash
+mkdir release
+cd release
+cmake ../nexus433 -DCMAKE_BUILD_TYPE=RELEASE
+```
+
+Now build
+```bash
+make
+```
+
+and install
+```bash
+make install
+```
+If default build configuration is used this copy:
+1. `nexus433` to `/usr/local/bin`
+2. `nexus433.ini` to `/etc`
+3. `nexus433.service` to `/etc/systemd/system/`
+
+## Build options
+
+Every time you change something in the source code you must call `make` (no need to execute `cmake`).
+
+Build may be optionally modifed by passing arguments to `cmake`.
+For example to change default name of configuration file call `cmake ../nexus433 -DINSTALL_INI_FILENAME=my.ini`.
+
+List of useful build parameters:
+
+|Name                  |Description|
+|----------------------|------------------------------------------------------------|
+|`INSTALL_INI_DIR`     |Directory where configuration file is stored, default `/etc`|
+|`INSTALL_INI_FILENAME`|Configuration file name, default `nexus433.ini`|
+|`GPIOD_DEFAULT_DEVICE`|Default gpiod device name where 433MHz received, default `/dev/gpiochip0`|
+|`GPIOD_DEFAULT_PIN`   |Default pin number name where 433MHz received, default `1`|
+|`CMAKE_BUILD_TYPE`    |Build type: `DEBUG`, `RELEASE`, `RELWITHDEBINFO`, `MINSIZEREL`|
+|`CMAKE_INSTALL_PREFIX`|Install prefix, default `/usr/local`|
+
+By default build script detects the board type and sets `GPIOD_DEFAULT_PIN`. This selects pin when no configuration is
+available or pin was not set by -p/--pin option.
+
+Currently Raspberry Pi and Orange Pi boards are recognized. Actually these parameters can be easily overridden in configuration INI file, so no problem when board is unrecognized.
+When the project is cross compiled it may be useful to force board type by passing to `cmake` `-DBOARD=RASPBERRYPI` or `-DBOARD=ORANGEPI`.
+Even when target board is set, executable is still portable as the only board specific only parameter is default pin number.
+
+## Debugging
+
+To debug application, first generate DEBUG configuration and then compile
+```bash
+mkdir debug
+cd debug
+cmake ../nexus433 -DCMAKE_BUILD_TYPE=DEBUG
+make
+```
+
+The above compiles sources (with `DEBUG` macro defined) and generates debug information.
+
+It may be also useful to generate project files for Eclipse (if you use Eclipse for development):
+```bash
+cmake ../nexus433 -G"Eclipse CDT4 - Unix Makefiles"
+```
+
 
 # Quickstart
 
@@ -400,7 +470,7 @@ internal_led=orangepi:red:status
 
 # Start as a service
 
-`make install` automatically install service configuration files.
+`make install` automatically installs service configuration files.
 To start the service:
 ```bash
 sudo service nexus433 start
@@ -494,3 +564,19 @@ If you got problems receiving proper data from sensors you can do one the follow
 3. Reduce `resolution_us` parameter to 0 and increase `tolerance_us`.
 4. Use longer antenna. Just attach a piece of wire. The length of the wire is related to wave length, you can use: 69cm, 34cm, 17cm, 8cm, 4cm wires.
 5. If you got more than one sensor make sure they transmit data in different time. If two sensors collide remove battery and insert again.
+
+# CPU usage
+
+Linux is not a real time operating system. You never know how much time scheduler assigns to the application.
+
+If the system is not very busy, the application got enough time to process entire transmission more or less in real time. If the system is heavily loaded the program can easily miss transmitted bits.
+
+For now the only solution (but unfortunately not guaranteed 100% success) is to force system to assign more time for the application:
+
+1. Increase priority of the app; see `nice` command
+
+2. Change resolution to `0` (CPU usage will raise). In addition increase tolerance (but big values can also degrade significantly quality).
+
+3. Run the application on separate system that is either dedicated to 433MHz reception or does not run too many other apps (but that makes nexus433 quite obsolete because you can use cheaper dedicated board just for 433MHz).
+
+To definitely solve the problem, kernel device driver is needed and entire signal processing should be made there.

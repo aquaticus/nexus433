@@ -1,6 +1,19 @@
 # output
+bin
+CMakeFiles
+Makefile
+CMakeCache.txt
+cmake_install.cmake
+[dD]ebug
+[rR]elease
+.project
+.cproject
+.settings
+board.h
 nexus433
-_VERSION
+nexus433.ini
+nexus433.service
+version.h
 
 # Prerequisites
 *.d

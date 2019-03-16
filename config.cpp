@@ -19,9 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include "config.h"
 #include "xini.h"
+#include "board.h"
 
 //default values
-const char* Config::default_config_location="/etc/" NEXUS433 ".ini";
+const char* Config::default_config_location=INI_FILEPATH;
 
 string Config::mqtt::host = "127.0.0.1";
 int Config::mqtt::port = 1883;
@@ -33,8 +34,8 @@ std::string Config::mqtt::certfile;
 std::string Config::mqtt::keyfile;
 std::string Config::mqtt::keypass;
 
-string Config::receiver::chip="/dev/gpiochip0";
-int Config::receiver::pin=1;
+string Config::receiver::chip=GPIOD_DEFAULT_DEVICE;
+int Config::receiver::pin=GPIOD_DEFAULT_PIN;
 int Config::receiver::resolution_us=1;
 int Config::receiver::tolerance_us=300;
 std::string Config::receiver::internal_led="";

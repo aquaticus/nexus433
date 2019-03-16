@@ -33,8 +33,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "packet.h"
 #include "packetstorage.h"
 #include "mqttclient.h"
-#include "_VERSION"
+#include "version.h"
 #include "led.h"
+#include "board.h"
 
 Decoder* g_pDecoder = NULL; //for signal handler function
 #ifdef DEBUG
@@ -174,9 +175,9 @@ static void print_help()
             "Parameters (all optional):\n"
             "\t--verbose - enable verbose output\n"
             "\t--daemon - run in daemon mode\n"
-            "\t-g/--config - configuration file; default /etc/nexus433.ini\n"
-            "\t-c/--chip - gpio device to use; default /dev/gpiochip0\n"
-            "\t-n/--pin - pin number where 433MHz receiver is connected; default 1\n"
+            "\t-g/--config - configuration file; default " INI_FILEPATH "\n"
+            "\t-c/--chip - gpio device to use; default " GPIOD_DEFAULT_DEVICE "\n"
+            "\t-n/--pin - pin number where 433MHz receiver is connected; default " GPIOD_DEFAULT_PIN_STRING "\n"
             "\t-a/--address - MQTT broker address\n"
             "\t-p/--port - MQTT broker port; default 1883\n"
             "\t-h/--help - shows this message\n"
@@ -275,6 +276,8 @@ int main(int argc, char** argv)
             abort();
         }
     }
+
+    DEBUG_PRINTF("DEBUG OUTPUT IS ON. This may affect timings.\n");
 
     if( daemon_flag )
     {
