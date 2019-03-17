@@ -52,7 +52,7 @@ target_include_directories(nexus433 PRIVATE ${CMAKE_BINARY_DIR})
 target_link_libraries (nexus433  ${LIBS})
 target_compile_options(nexus433 PRIVATE "-Wall;-Wno-psabi" "$<$<CONFIG:DEBUG>:-O0;-g3;-ggdb;-DDEBUG>")
 
-install(TARGETS nexus433 DESTINATION ${NEXUS433_BINARY_PATH})
+install(TARGETS nexus433 DESTINATION bin)
 install(CODE "set(INSTALL_INI_DIR ${INSTALL_INI_DIR})")
 install(CODE "set(INSTALL_INI_FILENAME ${INSTALL_INI_FILENAME})")
 install(SCRIPT install_config.cmake)
