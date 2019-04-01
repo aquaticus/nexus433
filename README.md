@@ -3,11 +3,11 @@
 # Introduction
 This program can read data from cheap 433 MHz wireless temperature and humidity sensors
 and integrate with home automation systems using MQTT broker.
-It was designed to work with popular ARM boards like Raspberry Pi, Orange Pi and many others.
+It was designed to work with popular ARM boards like Raspberry Pi, Orange Pi, and many others.
 Home Assistant MQTT sensor discovery is available.
 
-To make it working you need only one external component &ndash; 433 MHz receiver.
-It have to be connected to one of the I/O pin, the program can decode directly
+To make it work you need only one external component &ndash; 433 MHz receiver.
+It has to be connected to one of the I/O pin, the program can decode directly
 data from sensors without any third party additional components.
 It supports Nexus sensor protocol which is implemented in many cheap sensors.
 
@@ -42,7 +42,7 @@ the Free Software Foundation, either version 3 of the License, or
 ## Supported boards
 
 Any board that can run **Linux** with block device gpiod I/O driver can be used.
-That means any board with modern version of Linux is supported. Specifically:
+That means any board with a modern version of Linux is supported. Specifically:
 * **Orange Pi** running Armbian version 5.x. All boards.
 * **Raspberry Pi** running Raspbian. All boards.
 * Any board running **Armbian 5.x**.
@@ -65,9 +65,9 @@ Here are a few that are confirmed to use Nexus protocol:
 
 # Nexus protocol
 
-Device sends every minute or so (Sencor every 58 seconds, Digoo every 80 seconds) 12 data frames.
+A device sends every minute or so (Sencor every 58 seconds, Digoo every 80 seconds) 12 data frames.
 
-Each data frame consists of 36 bits. There is no any checksum.
+Each data frame consists of 36 bits. There is no checksum.
 
 The meaning of bits:
 
@@ -75,7 +75,7 @@ The meaning of bits:
 |---------|----|---------|---|---------|-------------|------|----------|
 | Meaning | ID | Battery | 0 | Channel | Temperature | 1111 | Humidity |
 
-1. *ID* &ndash; unique ID; Sencor generates new ID when battery is changed, Digoo keeps the same ID all the time.
+1. *ID* &ndash; unique ID; Sencor generates new ID when the battery is changed, Digoo keeps the same ID all the time.
 2. *Battery* &ndash; low battery indicator; 1 &ndash; battery ok, 0 &ndash; low battery
 3. *Channel* &ndash; channel number, 0 &ndash; first channel, 1 &ndash; second and so on.
 4. *Temperature* &ndash; signed temperature in Celsius degrees.
@@ -83,13 +83,13 @@ The meaning of bits:
 
 Every bit starts with 500 µs high pulse. The length of the following low
 state decides if this is `1` (2000 µs) or `0` (1000 µs).
-There is 4000 µs long low state period before every 36 bits.
+There is a 4000 µs long low state period before every 36 bits.
 
 ![Nexus protocol timing](pics/nexus_protocol.png)
 
 # How it works
 
-The program is written in C++. It supports new block device GPIO subsystem. It uses [libgpiod](https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/)
+The program is written in C++. It supports the new block device GPIO subsystem. It uses [libgpiod](https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/)
 C library for I/O operations. For MQTT communication Mosquitto client [libmosquittpp](https://mosquitto.org/man/libmosquitto-3.html) is linked.
 INI file parsing with the help of https://github.com/jtilly/inih.
 
@@ -97,34 +97,32 @@ One input pin is used to read data from 433 MHz receiver. Any pin can be used fo
 There is *no* requirement pin supports events.
 
 The state of the pin is probed to detect valid frames. When 36 bits are read the data is converted to
-JSON and pushed to MQTT broker. In addition program tracks when new transmitter is detected and when
-transmitter become silent. This information is also pushed to MQTT.
+JSON and pushed to MQTT broker. In addition, program tracks when a new transmitter is detected and when the transmitter becomes silent. This information is also pushed to MQTT.
 
 New transmitters can be automatically detected by popular home automation system [Home Assistant](https://www.home-assistant.io/).
 
 ## Standard operations
 
-Nexus protocol does not offer any way to check if the frame was received properly. The software accepts data from
-sensor only when minimum 2 valid frames were received. Valid frame is when temperature and humidity values are reasonable
+Nexus protocol does not offer any way to check if the frame was received properly. The software accepts data from the sensor only when the minimum 2 valid frames were received. A valid frame is when temperature and humidity values are reasonable
 and fixed 4 bits are set to 1.
 
-All sensor data is send as one JSON package in topic `nexus433/sensor/XXXX/state`, when XXXX is unique
+All sensor data is sent as one JSON package in topic `nexus433/sensor/XXXX/state` when XXXX is unique
 transmitter ID made of ID (first byte) and channel number (second byte) in hex format.
 For example `ae01` means transmitter with id `0xAE` and channel 2 (channels are 0 based).
 
-In addition when transmitter first sends data program sends `online` on topic `nexus433/sensor/XXXX/connection`.
-If there is no data from sensor for 90 seconds, program sends `offline` to the same topic.
+In addition, when the transmitter first sends data program sends `online` on topic `nexus433/sensor/XXXX/connection`.
+If there is no data from the sensor for 90 seconds, the program sends `offline` to the same topic.
 
-When program starts and stops it sends `online` or `offline` to global connection topic: `nexus433/connection`.
+When the program starts and stops it sends `online` or `offline` to global connection topic: `nexus433/connection`.
 
-For newly detected transmitters specially formatted JSON data is send to `homeassistant` topic to make
-Home Assistant automatically discover sensor. For one transmitter 4 sensors are created: temperature,
-humidity, battery and quality.
+For newly detected transmitters specially formatted JSON data is sent to `homeassistant` topic to make
+Home Assistant automatically discovers the sensor. For one transmitter 4 sensors are created: temperature,
+humidity, battery, and quality.
 
 Battery value is either 100 (normal) or 0 (low). These values are compatible with Home Assistant battery class.
-They can be changed in configuration file.
+They can be changed in the configuration file.
 
-Quality is percentage of received frames. 100% is when all 12 frames are received.
+Quality is the percentage of received frames. 100% is when all 12 frames are received.
 
 ## Configuration
 
@@ -143,12 +141,12 @@ Quality is percentage of received frames. 100% is when all 12 frames are receive
 
 ### Port number and GPIO chip name
 
-Pin numbers are assigned by block GPIO device driver. To see available lines you can use `gpioinfo` utility from libgpiod library.
+Pin numbers are assigned by block GPIO device driver. To see available lines you can use `gpioinfo` utility from the libgpiod library.
 
 #### Raspberry Pi
 
 Only one GPIO device is available `/dev/gpiochip0`.
-Pin numbers are the same as GPIO line number, for example physical pin 11 is `GPIO17`. Pin number for that line is `17`.
+Pin numbers are the same as GPIO line number, for example, physical pin 11 is `GPIO17`. Pin number for that line is `17`.
 
 #### Orange Pi
 
@@ -161,10 +159,10 @@ PL port is the first assigned to chip number 2.
 
 ### Configuration file
 
-Thanks to configuration file you can alter the way program behaves. The file is typical INI file
-divided into section. Every section got its own configuration keys.
+Thanks to configuration file you can alter the way program behave. The file is a typical INI file
+divided into sections. Every section got its own configuration keys.
 
-By default program tries to open `/etc/nexus433.ini` file. This location can be changed using `-g/--config`
+By default, the program tries to open `/etc/nexus433.ini` file. This location can be changed using `-g/--config`
 command line option.
 
 Strings must be entered without `"` characters. Boolean values accepted: `true`/`false`, `yes`/`no`, `1`/`0`.
@@ -174,10 +172,10 @@ Comments must begin with `;`.
 
 |Key|Type|Default|Description|
 |---|----|-------|-----------|
-|`silent_timeout`|number|90|When no data is received during this time in seconds, transmitters is treated as offline.|
+|`silent_timeout`|number|90|When no data is received during this time in seconds, transmitters are treated as offline.|
 |`minimum_frames`|number|2|Minimum number of data frames to accept transmission as valid.|_
-|`battery_normal`|string|100|String sent in JSON MQTT message when battery level is normal.|
-|`battery_low`|string|0|String sent in JSON MQTT message when battery level is low.|
+|`battery_normal`|string|100|String sent in JSON MQTT message when the battery level is normal.|
+|`battery_low`|string|0|String sent in JSON MQTT message when the battery level is low.|
 |`discovery`|bool|false|Enable or disable Home Assistant MQTT sensor discovery.|
 |`discovery_prefix`|string|homeassistant| Home Assistant MQTT discovery topic.|
 
@@ -202,12 +200,12 @@ Comments must begin with `;`.
 |`cafile`|string||Path to a file containing the PEM encoded trusted CA certificate files.|
 |`capath`|string||Path to a directory containing the PEM encoded trusted CA certificate files.|
 |`certfile`|string||Path to a file containing the PEM encoded certificate file.|
-|`keyfile`|string||Path to a file containing the PEM encoded private key. If encrypted, password must be passed in `keypass`.|
+|`keyfile`|string||Path to a file containing the PEM encoded private key. If encrypted, the password must be passed in `keypass`.|
 |`keypass`|string||Password to encrypted `keyfile`.|
 
 ##### SSL/TLS support
 
-To enable SSL/TLS encrypted connection to MQTT broker specify CA certificate and optionally client certificate.
+To enable SSL/TLS encrypted connection to MQTT broker, specify CA certificate and optionally client certificate.
 
 For CA certificate, one of two options must be set: `capath` or `cafile`.
 For `capath` to work correctly, the certificates files must have `.pem` as the extension and you must run `openssl rehash <path to capath>` each time you add or remove a certificate.
@@ -215,54 +213,54 @@ For `capath` to work correctly, the certificates files must have `.pem` as the e
 If `capath` or `cafile` is specified without any other SSL/TLS option the client will verify Mosquitto server but the server will be unable to verify the client.
 The connection will be encrypted.
 
-To specify client certificate set `certfile`, `keyfile` and optionally `keypass`.
+To specify a client certificate set `certfile`, `keyfile` and optionally `keypass`.
 
 >:information_source: Please note that the traffic to MQTT broker would be encrypted but temperate and humidity data from sensors is available for everyone as radio transmission is not encrypted in any way.
 
 #### `[ignore]`
 
 List of transmitter IDs (2 bytes, ID and channel number) to be ignored. Data from ignored
-transmitters in not sent to MQTT.
+transmitters are not sent to MQTT.
 
-Key must be 2 byte ID and the value is true if transmitter is ignored, otherwise false.
+Key must be 2 byte ID and the value is true if the transmitter is ignored, otherwise false.
 For example to ignore transmitter 0xAE on channel 1 add:
 `ae00=true`.
 
 #### `[substitute]`
 
-This section allows to change original ID of transmitter to another number. This may be useful
-when the sensors is broken or the battery was changed and you do not want to reconfigure existing infrastructure.
+This section allows changing the original ID of the transmitter to another number. This may be useful
+when the sensors are broken or the battery was changed and you do not want to reconfigure existing infrastructure.
 
-Key must be ID of the transmitted and the value new ID.
+Key must be an ID of the transmitted and the value new ID.
 For example, to change 0xAE channel 1 to 0x78 channel 2 use: `ae00=7801`.
 
 #### `[temperature]`
 
-Name of the temperature sensor reported to Home Assistant discovery mechanism for specified transmitter.
-Key must be 2 bytes ID, value is the name, for example:
+Name of the temperature sensor reported to Home Assistant discovery mechanism for the specified transmitter.
+Key must be 2 bytes ID, the value is the name, for example:
 `ae00=Kitchen Temperature`
-If not specified default value of `433MHz Sensor Id:XX channel Y Temperature` will be reported.
+If not specified the default value of `433MHz Sensor Id:XX channel Y Temperature` will be reported.
 
 #### `[humidity]`
 
-Name of the humidity sensor reported to Home Assistant discovery mechanism for specified transmitter.
-Key must be 2 bytes ID, value is the name, for example:
+Name of the humidity sensor reported to Home Assistant discovery mechanism for the specified transmitter.
+Key must be 2 bytes ID, the value is the name, for example:
 `ae00=Kitchen Humidity`
-If not specified default value of `433MHz Sensor Id:XX channel Y Humidity` will be reported.
+If not specified the default value of `433MHz Sensor Id:XX channel Y Humidity` will be reported.
 
 #### `[battery]`
 
-Name of the battery sensor reported to Home Assistant discovery mechanism for specified transmitter.
-Key must be 2 bytes ID, value is the name, for example:
+Name of the battery sensor reported to Home Assistant discovery mechanism for the specified transmitter.
+Key must be 2 bytes ID, the value is the name, for example:
 `ae00=Kitchen Sensor Battery`
-If not specified default value of `433MHz Sensor Id:XX channel Y Battery` will be reported.
+If not specified, the default value of `433MHz Sensor Id:XX channel Y Battery` will be reported.
 
 #### `[quality]`
 
-Name of the quality sensor reported to Home Assistant discovery mechanism for specified transmitter.
-Key must be 2 bytes ID, value is the name, for example:
+Name of the quality sensor reported to Home Assistant discovery mechanism for the specified transmitter.
+Key must be 2 bytes ID, the value is the name, for example:
 `ae00=Kitchen Sensor Connection Quality`
-If not specified default value of `433MHz Sensor Id:XX channel Y Quality` will be reported.
+If not specified the default value of `433MHz Sensor Id:XX channel Y Quality` will be reported.
 
 # Installation
 
@@ -325,14 +323,14 @@ If default build configuration is used this copy:
 
 Every time you change something in the source code you must call `make` (no need to execute `cmake`).
 
-Build may be optionally modifed by passing arguments to `cmake`.
-For example to change default name of configuration file call `cmake ../nexus433 -DINSTALL_INI_FILENAME=my.ini`.
+The build may be optionally modified by passing arguments to `cmake`.
+For example to change the default name of the configuration file, call `cmake ../nexus433 -DINSTALL_INI_FILENAME=my.ini`.
 
 List of useful build parameters:
 
 |Name                  |Description|
 |----------------------|------------------------------------------------------------|
-|`INSTALL_INI_DIR`     |Directory where configuration file is stored, default `/etc`|
+|`INSTALL_INI_DIR`     |Directory where the configuration file is stored, default `/etc`|
 |`INSTALL_INI_FILENAME`|Configuration file name, default `nexus433.ini`|
 |`GPIOD_DEFAULT_DEVICE`|Default gpiod device name where 433MHz received, default `/dev/gpiochip0`|
 |`GPIOD_DEFAULT_PIN`   |Default pin number name where 433MHz received, default `1`|
@@ -342,13 +340,13 @@ List of useful build parameters:
 By default build script detects the board type and sets `GPIOD_DEFAULT_PIN`. This selects pin when no configuration is
 available or pin was not set by -p/--pin option.
 
-Currently Raspberry Pi and Orange Pi boards are recognized. Actually these parameters can be easily overridden in configuration INI file, so no problem when board is unrecognized.
+Currently, Raspberry Pi and Orange Pi boards are recognized. Actually, these parameters can be easily overridden in the configuration INI file, so no problem when the board is unrecognized.
 When the project is cross compiled it may be useful to force board type by passing to `cmake` `-DBOARD=RASPBERRYPI` or `-DBOARD=ORANGEPI`.
-Even when target board is set, executable is still portable as the only board specific only parameter is default pin number.
+Even when the target board is set, the executable is still portable as the only board specific only parameter is default pin number.
 
 ## Debugging
 
-To debug application, first generate DEBUG configuration and then compile
+To debug the application, first generate DEBUG configuration and then compile
 ```bash
 mkdir debug
 cd debug
@@ -366,8 +364,8 @@ cmake ../nexus433 -G"Eclipse CDT4 - Unix Makefiles"
 
 # Quickstart
 
-433 MHz receiver got typcally 3 pins: VIN, GND and DATA.
-For Raspberry Pi and boards with compatible connector like Orange Pi connect VIN to pin #2 (5V), GND to pin #6 (GND)
+433 MHz receiver got typically 3 pins: VIN, GND, and DATA.
+For Raspberry Pi and boards with a compatible connector like Orange Pi connect VIN to pin #2 (5V), GND to pin #6 (GND)
 and data to pin #11	(GPIO17).
 
 |433 MHz receiver|Raspberry Pi|Orange Pi|
@@ -383,11 +381,11 @@ and data to pin #11	(GPIO17).
 
 ## MQTT Broker
 Make sure you got any MQTT broker up and running. If not please install
-[Mosquitto](https://mosquitto.org/). The examples below assume that MQTT broker is installed on the same machine. If not use `-a` command line option to specify MQTT address and `-p` for port number if different than default 1883.
+[Mosquitto](https://mosquitto.org/). The examples below assume that MQTT broker is installed on the same machine. If not use `-a` command line option to specify MQTT address and `-p` for a port number if different than default 1883.
 
 ## First run
 
-Get your sensor close to the receiver and remove battery.
+Get your sensor close to the receiver and remove the battery.
 
 Run program in verbose mode and specify pin number.
 
@@ -400,13 +398,13 @@ Insert battery &ndash; that way the sensor sends immediately data, you do not ne
 You should see new readings on the screen:
 ```
 Loading configuration from /etc/nexus433.ini
-Reading data from 433MHz receiver on /dev/gpiochip0 pin 17.
+Reading data from the 433MHz receiver on /dev/gpiochip0 pin 17.
 Decoder resolution: 1 µs; tolerance: 300 µs
 Connected to MQTT broker.
 New transmitter 0x5c channel 2
 0x5c910ff38 Id:0x5c Channel:2 Temperature: 27.1°C Humidity: 56% Battery:1 Frames:12 (100%)
 ```
-The last line is actual data from sensor. What is interesting that all 12 data frames were received.
+The last line is the actual data from the sensor. What is interesting that all 12 data frames were received.
 That means reception is very good.
 The next step is to monitor MQTT data. Install mosquitto client:
 ```bash
@@ -416,7 +414,7 @@ and use `mosquitto_sub` to subscribe to interesting topics.
 ```bash
 mosquitto_sub -v -t "nexus433/#"
 ```
-Of course add `-h` and `-P` options if needed to specify MQTT host and port.
+Of course, add `-h` and `-P` options if needed to specify MQTT host and port.
 You should see:
 ```
 nexus433/sensor/5c01/state { "temperature": 27.3, "humidity": 56, "battery": "100", "quality": 100 }
@@ -424,7 +422,7 @@ nexus433/sensor/5c01/state { "temperature": 27.3, "humidity": 56, "battery": "10
 Now lets see what other data is sent to MQTT broker.
 Stop both `nexus433` and `mosquitto_sub` by pressing `Control-C`.
 
-Run `mosquitto-sub` first and subscribe to additional topic:
+Run `mosquitto-sub` first and subscribe to an additional topic:
 ```bash
 mosquitto_sub -v -t "nexus433/#" -t "homeassistant/#"
 ```
@@ -435,25 +433,25 @@ Now run:
 |`sudo nexus433 --verbose -n 17`|`sudo nexus433 --verbose -n 1`|
 
 and wait for the reading (you can use battery trick to limit waiting time).
-When you receive first data packets check `mosquitto_sub` output. This time it logged more lines:
+When you receive the first data packets check `mosquitto_sub` output. This time it logged more lines:
 ```
 nexus433/connection offline
 nexus433/connection online
 nexus433/sensor/5c01/connection online
 nexus433/sensor/5c01/state { "temperature": 27.4, "humidity": 56, "battery": "100", "quality": 100 }
 ```
-Note that there are 2 connection topics. When program starts it publishes `online` message on `nexus433/connection`. When
+Note that there are 2 connection topics. When the program starts it publishes `online` message on `nexus433/connection`. When
 stops for some reason or connection to MQTT is lost `offline`. Because `offline` is published with *retain* flag
 you get this message every time subscribed to this topic. Thanks to this feature when the program is down any client
 receives this information.
 
-When new sensor is detected `online` is published on sensor specific topic.
+When a new sensor is detected `online` is published on sensor specific topic.
 The format is `nexus433/sensor/XXXX/connection`, where `XXXX` is 2 bytes sensor ID. When a sensor does not send
 any data during 90 seconds (this can be configured) on the very same topic `offline` is published.
 
 ## LED
 
-It is possible to use one of the built-in LEDs to indicate new packets. When configured, every time  valid data is received LED will be on for 500 ms.
+It is possible to use one of the built-in LEDs to indicate new packets. When configured, every time valid data is received LED will be on for 500 ms.
 
 To check available LEDs use: `ls /sys/class/leds`. Depending on your device number and names may differ.
 Here is the result for Orange Pi PC board:
@@ -483,7 +481,7 @@ To view service status:
 ```bash
 sudo service nexus433 status
 ```
-To run service every time system starts:
+To run the service every time the system starts:
 ```bash
 sudo systemctl enable nexus433
 ```
@@ -508,14 +506,14 @@ discovery=yes
 ```
 
 When enabled, for every new transmitter detected an extra JSON data is published on `homeassistant` topic.
-One transmitter will create 4 new sensors: temperature, humidity, battery and quality.
+One transmitter will create 4 new sensors: temperature, humidity, battery, and quality.
 Sample JSON data will look like this:
 ```json
 {"name": "433MHz Sensor Id:78 channel 1 Temperature", "device_class": "temperature", "state_topic": "nexus433/sensor/7800/state", "availability_topic": "nexus433/connection", "unit_of_measurement": "°C", "value_template": "{{ value_json.temperature }}", "expire_after": 90}
 ```
 You should see new sensors in Home Assistant interface. Now you must create a group or view to show them.
-Note that device `name` is automatically generated. You can change the name by adding appropriate
-section to configuration file. Remember to change the name *before* sensor is discovered.
+Note that the device `name` is automatically generated. You can change the name by adding an appropriate
+section to the configuration file. Remember to change the name *before* sensor is discovered.
 
 There is no easy way to remove MQTT discovered sensors from Home Assistant. Once added they will be shown on the list of sensors forever.
 If you like to experiment only with sensors, consider adding sensors manually as described in the next chapter.
@@ -523,7 +521,7 @@ If you like to experiment only with sensors, consider adding sensors manually as
 ## Adding sensors manually to Home Assistant
 
 When you add sensor manually, you can modify it or remove any time you like.
-Automatically added sensors cannot be modified nor removed.
+Automatically added sensors cannot be modified or removed.
 
 To add a new sensor, you must perform exactly the same steps as adding any other MQTT sensor. See https://www.home-assistant.io/components/sensor.mqtt/ for more information.
 
@@ -559,11 +557,11 @@ Note that there is no special device class for quality, so you can use something
 
 If you got problems receiving proper data from sensors you can do one the following:
 
-1. Check if data is properly received from close range, if not check batter or test with other sensor.
-2. Move antenna to different position.
+1. Check if data is properly received from close range, if not check batter or test with another sensor.
+2. Move the antenna to a different position.
 3. Reduce `resolution_us` parameter to 0 and increase `tolerance_us`.
-4. Use longer antenna. Just attach a piece of wire. The length of the wire is related to wave length, you can use: 69cm, 34cm, 17cm, 8cm, 4cm wires.
-5. If you got more than one sensor make sure they transmit data in different time. If two sensors collide remove battery and insert again.
+4. Use longer antenna. Just attach a piece of wire. The length of the wire is related to wavelength, you can use: 69cm, 34cm, 17cm, 8cm, 4cm wires.
+5. If you got more than one sensor make sure they transmit data in different time. If two sensors collide remove the battery and insert again.
 
 # CPU usage
 
@@ -571,12 +569,12 @@ Linux is not a real time operating system. You never know how much time schedule
 
 If the system is not very busy, the application got enough time to process entire transmission more or less in real time. If the system is heavily loaded the program can easily miss transmitted bits.
 
-For now the only solution (but unfortunately not guaranteed 100% success) is to force system to assign more time for the application:
+For now the only solution (but unfortunately not guaranteed 100% success) is to force the system to assign more time for the application:
 
-1. Increase priority of the app; see `nice` command
+1. Increase the priority of the app; see `nice` command
 
 2. Change resolution to `0` (CPU usage will raise). In addition increase tolerance (but big values can also degrade significantly quality).
 
-3. Run the application on separate system that is either dedicated to 433MHz reception or does not run too many other apps (but that makes nexus433 quite obsolete because you can use cheaper dedicated board just for 433MHz).
+3. Run the application on a separate system that is either dedicated to 433MHz reception or does not run too many other apps (but that makes nexus433 quite obsolete because you can use cheaper dedicated board just for 433MHz).
 
-To definitely solve the problem, kernel device driver is needed and entire signal processing should be made there.
+To definitely solve the problem, a kernel device driver is needed and entire signal processing should be made there.
