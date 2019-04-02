@@ -68,14 +68,19 @@ public:
 protected:
 	void ThreadFunc();
 	void Decode(bool risingEdge, long long delta);
+        void DecodeTFA(bool risingEdge, long long delta);
 
 	IStorage& m_Storage;
 	std::promise<void> m_StopFlag;
 	std::thread* m_pThread;
 
-	STATES m_State=STATE_UNKNOWN;
-	uint8_t m_BitCount=0;
-	uint64_t m_Bits=0;
+        STATES m_State=STATE_UNKNOWN;
+        uint8_t m_BitCount=0;
+        uint64_t m_Bits=0;
+
+	STATES m_State_tfa=STATE_UNKNOWN;
+	uint8_t m_BitCount_tfa=0;
+	uint64_t m_Bits_tfa=0;
 	gpiod_line* m_Line;
 	int m_ToleranceUs; // +/- tolerance in microseconds, default 150
 	int m_ResolutionUs; // how long go to sleep in microseconds. Lower number (0 best) better precision but higher system load

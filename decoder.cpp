@@ -30,6 +30,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PULSE_LOW_ONE 2000
 #define SYNC_GAP_LEN 4000
 
+#define PULSE_HIGH_LEN_TFA 500
+#define PULSE_LOW_ZERO_TFA 2000
+#define PULSE_LOW_ONE_TFA 4000
+#define SYNC_GAP_LEN_TFA 6000
+
+
 // Packet consist of 36 bits
 #define PACKET_BITS_COUNT 36
 
@@ -67,6 +73,7 @@ void Decoder::ThreadFunc()
 			prev=now;
 
 			Decode(value==1, delta);
+                        DecodeTFA(value==1, delta);
 		}
 
 		prev_value = value;
@@ -144,6 +151,79 @@ void Decoder::Decode(bool risingEdge, long long delta)
 		m_Bits=0;
 	}
 }
+
+
+void Decoder::DecodeTFA(bool risingEdge, long long delta)
+{
+	bool fallingEdge = !risingEdge;
+
+	switch(m_State_tfa)
+	{
+	case STATE_UNKNOWN:
+		if( risingEdge )
+		{
+			m_State_tfa=STATE_PULSE_START;
+		}
+		break;
+
+	case STATE_PULSE_START:
+		if( fallingEdge && LENGTH(delta, PULSE_HIGH_LEN_TFA) )
+		{
+			m_State_tfa = STATE_PULSE_END;
+		}
+		else
+		{
+			m_State_tfa = STATE_UNKNOWN;
+		}
+		break;
+
+	case STATE_PULSE_END:
+		if(risingEdge)
+		{
+			if( LENGTH(delta, PULSE_LOW_ONE_TFA ) )
+			{
+				// "1"
+				m_Bits_tfa |= (1ULL << (PACKET_BITS_COUNT-1-m_BitCount_tfa));
+				m_BitCount_tfa++;
+
+				m_State_tfa=STATE_PULSE_START;
+			}
+			else if( LENGTH(delta, PULSE_LOW_ZERO_TFA ) )
+			{
+				// "0" (no need to clear bit -- all bits are initially 0)
+				m_BitCount_tfa++;
+				m_State_tfa=STATE_PULSE_START;
+			}
+			else
+			{
+				m_BitCount_tfa=0;
+				m_Bits_tfa=0;
+				m_State_tfa=STATE_PULSE_START;
+			}
+		}
+		else
+		{
+			m_State_tfa=STATE_UNKNOWN;
+		}
+	break;
+	}
+
+	if( PACKET_BITS_COUNT == m_BitCount_tfa )
+	{
+//		m_Storage.Add(m_Bits_tfa);
+                m_Storage.Add(((m_Bits_tfa >> 24) & 0xFF)<<28|((m_Bits_tfa >> 20) & 0x03)<<24|((m_Bits_tfa >> 8) & 0x0FFF)<<12|((m_Bits_tfa >> 0) & 0xFF)<<0|(0x0F)<<8|((m_Bits_tfa >> 32) & 0x01)<<27);
+		m_BitCount_tfa=0;
+		m_Bits_tfa=0;
+	}
+
+	if( STATE_UNKNOWN == m_State_tfa )
+	{
+		m_BitCount_tfa=0;
+		m_Bits_tfa=0;
+	}
+}
+
+
 
 void Decoder::Terminate()
 {
