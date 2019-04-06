@@ -36,6 +36,7 @@ public:
     static int port;
     static std::string password;
     static std::string user;
+    static std::string clientid;
     static std::string cafile;
     static std::string capath;
     static std::string certfile;

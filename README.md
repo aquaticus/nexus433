@@ -196,6 +196,7 @@ Comments must begin with `;`.
 |`host`|string|127.0.0.1|MQTT host name.|
 |`port`|string|1883|MQTT port number.|
 |`user`|string||MQTT user name.|
+|`clientid`|string|nexus433|MQTT client id. If more than one instance of the program is connected to the same MQTT broker, use a different ID for each client.|
 |`password`|string||MQTT password.|
 |`cafile`|string||Path to a file containing the PEM encoded trusted CA certificate files.|
 |`capath`|string||Path to a directory containing the PEM encoded trusted CA certificate files.|

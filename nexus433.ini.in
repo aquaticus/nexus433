@@ -10,6 +10,8 @@
 ;user=
 ; MQTT password
 ;password=
+; MQTT client id. 
+;clientid=nexus433
 ; Path to a file containing the PEM encoded trusted CA certificate files
 ;cafile=
 ; Path to a directory containing the PEM encoded trusted CA certificate files

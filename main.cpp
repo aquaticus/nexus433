@@ -350,7 +350,8 @@ int main(int argc, char** argv)
       }
     }
 
-    MQTTClient mqtt(NEXUS433);
+    DEBUG_PRINTF("DEBUG: MQTT client id: %s\n", Config::mqtt::clientid.c_str());
+    MQTTClient mqtt(Config::mqtt::clientid.c_str());
 
     if (int rc = mqtt.Connect(Config::mqtt::host.c_str(), Config::mqtt::port))
     {

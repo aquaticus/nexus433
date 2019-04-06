@@ -28,6 +28,7 @@ string Config::mqtt::host = "127.0.0.1";
 int Config::mqtt::port = 1883;
 string Config::mqtt::password="";
 string Config::mqtt::user="";
+string Config::mqtt::clientid=NEXUS433;
 std::string Config::mqtt::cafile;
 std::string Config::mqtt::capath;
 std::string Config::mqtt::certfile;
@@ -69,6 +70,7 @@ bool Config::Load(const char* filename)
   Config::mqtt::port = ini.GetInteger("mqtt", "port", Config::mqtt::port);
   Config::mqtt::password = ini.Get("mqtt", "password", Config::mqtt::password);
   Config::mqtt::user=ini.Get("mqtt", "user", Config::mqtt::user);
+  Config::mqtt::clientid=ini.Get("mqtt", "clientid", Config::mqtt::clientid);
 
   Config::mqtt::cafile=ini.Get("mqtt", "cafile", "");
   Config::mqtt::capath=ini.Get("mqtt", "capath", "");
