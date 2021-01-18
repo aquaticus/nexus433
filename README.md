@@ -278,6 +278,7 @@ sudo apt install -y libmosquittopp-dev
 ```
 
 Install libgpiod C library
+>:information_source: If you see an error `libgpiod needs linux headers version >= v5.5.0` see issue #21 how to fix it.
 ```bash
 sudo apt install -y autoconf
 sudo apt install -y pkg-config
@@ -366,17 +367,17 @@ cmake ../nexus433 -G"Eclipse CDT4 - Unix Makefiles"
 # Quickstart
 
 433 MHz receiver got typically 3 pins: VIN, GND, and DATA.
-For Raspberry Pi and boards with a compatible connector like Orange Pi connect VIN to pin #2 (5V), GND to pin #6 (GND)
+For Raspberry Pi and boards with a compatible connector like Orange Pi connect VIN to pin #1 (3.3V), GND to pin #6 (GND)
 and data to pin #11	(GPIO17).
 
 |433 MHz receiver|Raspberry Pi|Orange Pi|
 |----------------|------------|---------|
-|`VIN`|`2` (+5V)|`2` (+5V)|
+|`VIN`|`1` (+3.3V)|`1` (+3.3V)|
 |`GND`|`6` (GND)|`6` (GND)|
 |`DATA` | `11` (GPIO17)  | `11` (PA1) |
 
 
->:information_source: If you have no free 5V pin you can use 3.3V pin. 433 MHz receivers work with 3.3V as well.
+>:information_source: Note image below shows `VIN` connected to 5V not 3.3V.
 
 ![Raspberry Pi with 433MHz receiver](pics/rpi.jpg)
 
@@ -515,9 +516,6 @@ Sample JSON data will look like this:
 You should see new sensors in Home Assistant interface. Now you must create a group or view to show them.
 Note that the device `name` is automatically generated. You can change the name by adding an appropriate
 section to the configuration file. Remember to change the name *before* sensor is discovered.
-
-There is no easy way to remove MQTT discovered sensors from Home Assistant. Once added they will be shown on the list of sensors forever.
-If you like to experiment only with sensors, consider adding sensors manually as described in the next chapter.
 
 ## Adding sensors manually to Home Assistant
 
