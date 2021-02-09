@@ -287,7 +287,7 @@ sudo apt install -y autoconf-archive
 git clone git://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
 cd libgpiod
 ./autogen.sh --enable-tools=yes
-sudo make
+make
 sudo make install
 sudo ldconfig
 ```

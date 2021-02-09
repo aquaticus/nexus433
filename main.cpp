@@ -345,7 +345,7 @@ int main(int argc, char** argv)
       if( !led.Open(Config::receiver::internal_led) )
       {
         std::cerr << "Cannot open internal LED device " << Config::receiver::internal_led << std::endl;
-        gpiod_line_close_chip(line);
+        gpiod_chip_close(chip);
         return -12;
       }
     }
@@ -357,7 +357,7 @@ int main(int argc, char** argv)
     {
         std::cerr << "Unable to connect to MQTT server." << std::endl;
         std::cerr << mosquitto_connack_string(rc) << std::endl;
-        gpiod_line_close_chip(line);
+        gpiod_chip_close(chip);
         return -7;
     }
 
@@ -375,7 +375,7 @@ int main(int argc, char** argv)
 
     rv = ProcessLoop(mqtt, decoder, storage, led);
 
-    gpiod_line_close_chip(line);
+    gpiod_chip_close(chip);
     mqtt.disconnect();
     led.Close();
 
