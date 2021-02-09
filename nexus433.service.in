@@ -3,6 +3,7 @@
 [Unit]
 Description=433MHz sensor receiver
 After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
