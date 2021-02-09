@@ -287,7 +287,7 @@ sudo apt install -y autoconf-archive
 git clone git://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
 cd libgpiod
 ./autogen.sh --enable-tools=yes
-sudo make
+make
 sudo make install
 sudo ldconfig
 ```
@@ -314,7 +314,7 @@ make
 
 and install
 ```bash
-make install
+sudo make install
 ```
 If default build configuration is used this copy:
 1. `nexus433` to `/usr/local/bin`
