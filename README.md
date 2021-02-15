@@ -263,7 +263,21 @@ Key must be 2 bytes ID, the value is the name, for example:
 `ae00=Kitchen Sensor Connection Quality`
 If not specified the default value of `433MHz Sensor Id:XX channel Y Quality` will be reported.
 
-# Installation
+# Installation using Debian package
+
+Download appropriate package. Check board name and platform. _armhf_ means 32 bit ARM platform (not RPI4).
+
+Verify package signature. This step is optional but highly recommended.
+All install packages are always signed.
+
+After download, run (_change the name of deb file_)
+```bash
+sudo apt install nexus433-....-armhf.deb
+```
+
+After installation, change name of `nexus433.ini.example` to `nexus.ini` and edit options.
+
+# Manual build and installation
 
 Build system is based on cmake.
 
@@ -278,27 +292,16 @@ sudo apt install -y libmosquittopp-dev
 ```
 
 Install libgpiod C library
->:information_source: If you see an error `libgpiod needs linux headers version >= v5.5.0` see issue #21 how to fix it.
 ```bash
-sudo apt install -y autoconf
-sudo apt install -y pkg-config
-sudo apt install -y libtool
-sudo apt install -y autoconf-archive
-git clone git://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
-cd libgpiod
-./autogen.sh --enable-tools=yes
-make
-sudo make install
-sudo ldconfig
+sudo apt install -y libgpiod-dev
 ```
 
 Clone git repository:
-
 ```bash
 git clone https://github.com/aquaticus/nexus433
 ```
 
-## Build
+### Build
 
 First call cmake, you do it once.
 ```bash
@@ -309,7 +312,7 @@ cmake ../nexus433 -DCMAKE_BUILD_TYPE=RELEASE
 
 Now build
 ```bash
-make
+make -j
 ```
 
 and install
@@ -318,8 +321,10 @@ make install
 ```
 If default build configuration is used this copy:
 1. `nexus433` to `/usr/local/bin`
-2. `nexus433.ini` to `/etc`
+2. `nexus433.ini.example` to `/etc`
 3. `nexus433.service` to `/etc/systemd/system/`
+
+You must change the name of `nexus433.ini.example` to `nexus.ini` and fine tune the options after install.
 
 ## Build options
 

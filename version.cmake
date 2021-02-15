@@ -17,4 +17,11 @@ if(NOT DEFINED VERSION)
   set(VERSION unknown)
 endif()
 
+message(STATUS "Software version: ${VERSION}")
 configure_file(${SRC} ${DST} @ONLY)
+
+# no easy way to pass version to CPack, separate script is used to build package
+string(REGEX REPLACE "^v"  "" PACKAGE_VERSION ${GIT_VERSION} )
+set(PACKAGE_VERSION_BOARD "${PACKAGE_VERSION}-${BOARD}")
+configure_file(${PKG_SRC} ${PKG_DST} @ONLY)
+execute_process(COMMAND "chmod" "+x" ${PKG_DST})
