@@ -108,6 +108,8 @@ public:
         m_SilentTimeoutSec = ms;
     }
 
+    int GetActiveTransmittersCount();
+
 protected:
     std::map<uint16_t, StorageItem> m_Items;
     std::mutex m_Lock;

@@ -130,10 +130,19 @@ std::list<uint16_t> PacketStorage::GetActiveTransmitters()
 {
     std::list<uint16_t> transmitters;
 
-    for (auto& it : m_Items)
+    m_Lock.lock(); //iterator is const, so it should be thread safe but just in case
+
+    for (const auto& it : m_Items)
     {
         transmitters.push_back(it.first);
     }
 
+    m_Lock.unlock();
+
     return transmitters;
+}
+
+int PacketStorage::GetActiveTransmittersCount()
+{
+    return m_Items.size();
 }

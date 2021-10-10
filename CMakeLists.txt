@@ -5,6 +5,21 @@ set(INSTALL_INI_DIR "/etc" CACHE STRING "Directory where to look for default INI
 set(INSTALL_INI_FILENAME "nexus433.ini" CACHE STRING "Default INI file name" )
 set(INSTALL_INI_PATH "${INSTALL_INI_DIR}/${INSTALL_INI_FILENAME}" ) 
 
+option(ENABLE_FAKE_TRANSMITTER "Enable fake transmitter for diagnostic purposes" OFF)
+IF(ENABLE_FAKE_TRANSMITTER)
+  add_compile_definitions(ENABLE_FAKE_TRANSMITTER)
+ENDIF()
+
+option(DISABLE_DEPRECATED "Disable deprecated warning during compilation" ON)
+if(DISABLE_DEPRECATED)
+  add_compile_options(-Wno-deprecated-declarations)
+endif()
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "RELEASE")
+  # warnings as errors for release
+  add_compile_options(-Werror)
+endif()
+
 file(GLOB SOURCES "*.cpp")
 add_executable(nexus433 ${SOURCES})
 

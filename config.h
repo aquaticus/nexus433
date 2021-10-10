@@ -29,6 +29,7 @@ class Config
 public:
   static bool Load(const char* filename);
   static const char* default_config_location;
+  static bool ReadMAC();
 
   struct mqtt
   {
@@ -51,6 +52,7 @@ public:
     static int resolution_us;
     static int tolerance_us;
     static std::string internal_led;
+    static std::string mac;
   };
 
   struct transmitter

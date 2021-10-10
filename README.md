@@ -107,13 +107,13 @@ Nexus protocol does not offer any way to check if the frame was received properl
 and fixed 4 bits are set to 1.
 
 All sensor data is sent as one JSON package in topic `nexus433/sensor/XXXX/state` when XXXX is unique
-transmitter ID made of ID (first byte) and channel number (second byte) in hex format.
+transmitter ID made of MAC address, ID (first byte) and channel number (second byte) in hex format.
 For example `ae01` means transmitter with id `0xAE` and channel 2 (channels are 0 based).
 
 In addition, when the transmitter first sends data program sends `online` on topic `nexus433/sensor/XXXX/connection`.
 If there is no data from the sensor for 90 seconds, the program sends `offline` to the same topic.
 
-When the program starts and stops it sends `online` or `offline` to global connection topic: `nexus433/connection`.
+When the program starts and stops it sends `online` or `offline` to global connection topic: `nexus433/[MAC]/connection`.
 
 For newly detected transmitters specially formatted JSON data is sent to `homeassistant` topic to make
 Home Assistant automatically discovers the sensor. For one transmitter 4 sensors are created: temperature,
@@ -240,28 +240,28 @@ For example, to change 0xAE channel 1 to 0x78 channel 2 use: `ae00=7801`.
 Name of the temperature sensor reported to Home Assistant discovery mechanism for the specified transmitter.
 Key must be 2 bytes ID, the value is the name, for example:
 `ae00=Kitchen Temperature`
-If not specified the default value of `433MHz Sensor Id:XX channel Y Temperature` will be reported.
+If not specified the default value of `Temperature Id:XX ch Y` will be reported.
 
 #### `[humidity]`
 
 Name of the humidity sensor reported to Home Assistant discovery mechanism for the specified transmitter.
 Key must be 2 bytes ID, the value is the name, for example:
 `ae00=Kitchen Humidity`
-If not specified the default value of `433MHz Sensor Id:XX channel Y Humidity` will be reported.
+If not specified the default value of `Humidity Id:XX ch Y` will be reported.
 
 #### `[battery]`
 
 Name of the battery sensor reported to Home Assistant discovery mechanism for the specified transmitter.
 Key must be 2 bytes ID, the value is the name, for example:
 `ae00=Kitchen Sensor Battery`
-If not specified, the default value of `433MHz Sensor Id:XX channel Y Battery` will be reported.
+If not specified, the default value of `Battery Id:XX ch Y` will be reported.
 
 #### `[quality]`
 
 Name of the quality sensor reported to Home Assistant discovery mechanism for the specified transmitter.
 Key must be 2 bytes ID, the value is the name, for example:
 `ae00=Kitchen Sensor Connection Quality`
-If not specified the default value of `433MHz Sensor Id:XX channel Y Quality` will be reported.
+If not specified the default value of `Quality Id:XX ch Y` will be reported.
 
 # Installation using Debian package
 
@@ -361,17 +361,18 @@ List of useful build parameters:
 |----------------------|------------------------------------------------------------|
 |`INSTALL_INI_DIR`     |Directory where the configuration file is stored, default `/etc`|
 |`INSTALL_INI_FILENAME`|Configuration file name, default `nexus433.ini`|
-|`GPIOD_DEFAULT_DEVICE`|Default gpiod device name where 433MHz received, default `/dev/gpiochip0`|
-|`GPIOD_DEFAULT_PIN`   |Default pin number name where 433MHz received, default `1`|
+|`GPIOD_DEFAULT_DEVICE`|Default gpiod device name where 433MHz receiver is connected, default `/dev/gpiochip0`|
+|`GPIOD_DEFAULT_PIN`   |Default pin number name where 433MHz receiver is connected, default `1`|
 |`CMAKE_BUILD_TYPE`    |Build type: `DEBUG`, `RELEASE`, `RELWITHDEBINFO`, `MINSIZEREL`|
 |`CMAKE_INSTALL_PREFIX`|Install prefix, default `/usr/local`|
+|`ENABLE_FAKE_TRANSMITTER`|Enable simulated transmitters. Usefull for development.|
 
 By default build script detects the board type and sets `GPIOD_DEFAULT_PIN`. This selects pin when no configuration is
 available or pin was not set by -p/--pin option.
 
 Currently, Raspberry Pi and Orange Pi boards are recognized. Actually, these parameters can be easily overridden in the configuration INI file, so no problem when the board is unrecognized.
 When the project is cross compiled it may be useful to force board type by passing to `cmake` `-DBOARD=RASPBERRYPI` or `-DBOARD=ORANGEPI`.
-Even when the target board is set, the executable is still portable as the only board specific only parameter is default pin number.
+Even when the target board is set, the executable is still portable as the only board specific parameter is default pin number.
 
 ## Debugging
 
@@ -528,55 +529,37 @@ mqtt:
 ```
 For more information read this article: https://www.home-assistant.io/docs/mqtt/discovery/
 
-You must also enable discovery support in `nexus433.ini` file, by default it is disabled. Add:
+Nexus433 by default support MQTT sensor discovery. To disable it, modify `nexus433.ini`
 ```ini
 [transmitter]
-discovery=yes
+discovery=no
 ```
+Discovered devices can be shown in MQTT integration tab in `Configuration` settings. There will be always one device `Nexus433 433MHz gateway`. It provides just one sensor (disabled by default) `Number of active devices`.
 
-When enabled, for every new transmitter detected an extra JSON data is published on `homeassistant` topic.
-One transmitter will create 4 new sensors: temperature, humidity, battery, and quality.
-Sample JSON data will look like this:
-```json
-{"name": "433MHz Sensor Id:78 channel 1 Temperature", "device_class": "temperature", "state_topic": "nexus433/sensor/7800/state", "availability_topic": "nexus433/connection", "unit_of_measurement": "°C", "value_template": "{{ value_json.temperature }}", "expire_after": 90}
-```
-You should see new sensors in Home Assistant interface. Now you must create a group or view to show them.
-Note that the device `name` is automatically generated. You can change the name by adding an appropriate
-section to the configuration file. Remember to change the name *before* sensor is discovered.
+When 433 MHz sensor is detected a new device will be added `Temperatue Sensor Id:XX ch Y` (XX–Sensor Id, Y–channel). This device provides 4 sensors:
+1. Temperature
+1. Humidity
+1. Battery
+1. Quality
+
+In addition there is one sensor available `Number of active 433 MHz transmitters` that indicates active temperature sensors.
 
 ## Adding sensors manually to Home Assistant
 
-When you add sensor manually, you can modify it or remove any time you like.
-Automatically added sensors cannot be modified or removed.
+When automatic device discovery is disabled, sensor can be added manually.
 
 To add a new sensor, you must perform exactly the same steps as adding any other MQTT sensor. See https://www.home-assistant.io/components/sensor.mqtt/ for more information.
 
-To create a new humidity sensor add the following lines to your `configuration.yaml` (it is assumed the sensor id is `5c01`):
+To create a new humidity sensor add the following lines to your `configuration.yaml` (it is assumed the sensor id is `5c01` and MAC address of network card is 09815B5331AA):
 ```yaml
 - platform: mqtt
-  state_topic: "nexus433/sensor/5c01/state"
+  state_topic: "nexus433/sensor/09815B5331AA_5c01/state"
   name: "Bedroom Humidity"
   expire_after: 90
   unit_of_measurement: '%'
   device_class: humidity
-  availability_topic: "nexus433/connection"
+  availability_topic: "nexus433/sensor/09815B5331AA_4c01/connection"
   value_template: "{{ value_json.humidity }}"
-```
-Alternatively you could change `availability_topic` to `nexus433/sensor/5c01/connection`
-and remove `expiry_after`.
-
-Temperature, battery and quality sensors can be added in the same way. Just remember to change
-`device_class` and `unit_of_measurement` and `value_template`.
-Note that there is no special device class for quality, so you can use something like this:
-```yaml
-- platform: mqtt
-  state_topic: "nexus433/sensor/5c01/state"
-  name: "Bedroom Sensor Connection Quality"
-  expire_after: 90
-  unit_of_measurement: '%'
-  icon: mdi:wifi
-  availability_topic: "nexus433/connection"
-  value_template: "{{ value_json.quality }}"
 ```
 
 # Reception problems

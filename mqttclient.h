@@ -21,13 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <mosquittopp.h>
 #include "packet.h"
 #include "config.h"
+#include "packetstorage.h"
 
 using namespace mosqpp;
 
 class MQTTClient : public mosquittopp
 {
 public:
-	MQTTClient(const char* id) : mosquittopp(id)
+	MQTTClient(const char* id, PacketStorage& storage) : mosquittopp(id), m_Storage(storage)
 	{
 		lib_init();
 		m_Connected=false;
@@ -54,19 +55,34 @@ public:
 
 	void SensorDiscover(uint16_t id);
 
-	void OnlineStatus(bool online);
+	void GatewayStatus(bool online);
 
 	bool IsConnected()
 	{
 		return m_Connected;
 	}
+
+	void GatewayDiscover();
+
+	void GatewayUpdate(int number_of_active_sensors);
+
 protected:
 	void Substitute(uint16_t& id);
 	std::string GetName( MQTTClient::TYPES type, uint16_t id );
 
 	void on_connect(int rc);
 	void on_disconnect(int rc);
-	const char* const m_StateTopic = NEXUS433 "/sensor/%04x/state";
-	const char* const m_AvailTopic = NEXUS433 "/sensor/%04x/connection";
+	void on_message(const struct mosquitto_message * /*message*/);
+	const char* const m_SensorStateTopicFormat = NEXUS433 "/sensor/%s_%04x/state";
+	const char* const m_SensorAvailTopicFormat = NEXUS433 "/sensor/%s_%04x/connection";
+
+	const char* const m_GatewayStateTopicFormat = NEXUS433 "/sensor/%s/state";
+	const char* const m_GatewayAvailTopicFormat = NEXUS433 "/sensor/%s/connection";
+
+	const char* const m_Online = "online";
+	const char* const m_Offline = "offline";
+
 	bool m_Connected;
+	PacketStorage& m_Storage;
+	std::string m_StatusTopic;
 };

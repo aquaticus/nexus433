@@ -47,7 +47,7 @@
 ; string to send when battery normal
 ;battery_normal=100
 ; enable or disable Home Assistant discovery
-;discovery=no
+discovery=yes
 ; Home Assistant discovery MQTT topic
 ;discovery_prefix=homeassistant
 

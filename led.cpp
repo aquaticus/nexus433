@@ -10,7 +10,10 @@ void Led::Control(bool on)
   if( m_InternalLed > 0 )
   {
     const char* val = on ? von : voff;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
     write(m_InternalLed, val, strlen(val) );
+#pragma GCC diagnostic pop
   }
 }
 
@@ -28,7 +31,10 @@ bool Led::Open(std::string device)
     else
     {
       const char none[] = "none";
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
       write(fd, none, sizeof(none));
+#pragma GCC diagnostic pop
       close(fd);
     }
 

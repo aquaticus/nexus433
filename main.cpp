@@ -49,8 +49,9 @@ static int ProcessLoop(MQTTClient& mqtt, IDecoder& decoder, PacketStorage& stora
     std::set<Packet> NewReadings;
     std::set<uint16_t> RemovedTransmitters;
     std::set<uint16_t> NewTransmitters;
+    int ActiveTransmitters = -1;
 
-    mqtt.OnlineStatus(true);
+    mqtt.GatewayStatus(true);
 
     decoder.Start();
 
@@ -63,25 +64,32 @@ static int ProcessLoop(MQTTClient& mqtt, IDecoder& decoder, PacketStorage& stora
         // That way when new readings are coming sensor was already properly created in Home Assistant
         if (mqtt.IsConnected() && NewTransmitters.size() > 0)
         {
-            std::set<uint16_t>::iterator it = NewTransmitters.begin();
-            while (it != NewTransmitters.end())
+            for (auto it: NewTransmitters)
             {
                 if (mqtt.IsConnected())
                 {
-                    VERBOSE_PRINTF(ANSI_COLOR_YELLOW "New transmitter 0x%02x channel %d\n" ANSI_COLOR_RESET, *it >> 8, (*it & 0xFF) + 1);
+                    VERBOSE_PRINTF(ANSI_COLOR_YELLOW "New transmitter 0x%02x channel %d\n" ANSI_COLOR_RESET, it >> 8, (it & 0xFF) + 1);
 
                     if( Config::transmitter::discovery )
                     {
-                        mqtt.SensorDiscover(*it);
+                        mqtt.SensorDiscover(it);
                     }
-                    mqtt.SensorStatus(*it, true);
-                    it = NewTransmitters.erase(it);
-                }
-                else
-                {
-                    it++;
+                    
+                    mqtt.SensorStatus(it, true);
                 }
             }
+
+            //sometimes if "online" sent too quickly after discovery HA does not recognise it
+            //if sensors remain disabled, uncommend this line
+            //std::this_thread::sleep_for(std::chrono::seconds(1));
+            
+            // send online status
+            for (auto it : NewTransmitters)
+            {
+                mqtt.SensorStatus(it, true);
+            }
+
+            NewTransmitters.clear();
         }
 
         for (auto id : RemovedTransmitters)
@@ -130,6 +138,12 @@ static int ProcessLoop(MQTTClient& mqtt, IDecoder& decoder, PacketStorage& stora
                 it = NewReadings.erase(it);
             }
 
+            auto n =  storage.GetActiveTransmittersCount();
+            if( n != ActiveTransmitters )
+            {
+                mqtt.GatewayUpdate(n);
+                ActiveTransmitters = n;
+            }
         }
 
         if (mqtt.loop(1000) != MOSQ_ERR_SUCCESS)
@@ -149,7 +163,7 @@ static int ProcessLoop(MQTTClient& mqtt, IDecoder& decoder, PacketStorage& stora
         mqtt.SensorStatus(item, false);
     }
 
-    mqtt.OnlineStatus(false);
+    mqtt.GatewayStatus(false);
 
     return decoder.IsErrorStop() ? -6 : EXIT_SUCCESS;
 }
@@ -282,7 +296,10 @@ int main(int argc, char** argv)
     if( daemon_flag )
     {
         DEBUG_PRINTF("Daemon start\n");
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
         daemon(0, g_Verbose);
+#pragma GCC diagnostic pop
         openlog (NEXUS433, LOG_PID, LOG_DAEMON);
         syslog (LOG_NOTICE, NEXUS433 " daemon started.");
     }
@@ -312,6 +329,14 @@ int main(int argc, char** argv)
         }
     }
 
+    if( !Config::ReadMAC() )
+    {
+        std::cerr << "Cannot get MAC address" << std::endl;
+        return -8;
+    }
+
+    DEBUG_PRINTF("MAC addess: %s\n", Config::receiver::mac.c_str() );
+
     struct gpiod_chip *chip;
     struct gpiod_line *line;
 
@@ -339,7 +364,6 @@ int main(int argc, char** argv)
         return -3;
     }
 
-
     Led led;
     if( Config::receiver::internal_led.size() > 0)
     {
@@ -352,8 +376,11 @@ int main(int argc, char** argv)
       }
     }
 
+    PacketStorage storage;
+    PacketStorage::SetSilentTimeoutSec( Config::transmitter::silent_timeout_sec );
+
     DEBUG_PRINTF("DEBUG: MQTT client id: %s\n", Config::mqtt::clientid.c_str());
-    MQTTClient mqtt(Config::mqtt::clientid.c_str());
+    MQTTClient mqtt(Config::mqtt::clientid.c_str(), storage);
 
     if (int rc = mqtt.Connect(Config::mqtt::host.c_str(), Config::mqtt::port))
     {
@@ -364,9 +391,7 @@ int main(int argc, char** argv)
         return -7;
     }
 
-    PacketStorage storage;
     Decoder decoder(storage, line, Config::receiver::tolerance_us, Config::receiver::resolution_us);
-    PacketStorage::SetSilentTimeoutSec( Config::transmitter::silent_timeout_sec );
 
     g_pDecoder = &decoder;
     std::signal(SIGINT, terminate_handler);
