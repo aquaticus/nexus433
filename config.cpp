@@ -89,7 +89,7 @@ bool Config::Load(const char *filename)
   Config::receiver::tolerance_us = ini.GetInteger("receiver", "tolerance_us", Config::receiver::tolerance_us);
   Config::receiver::internal_led = ini.Get("receiver", "internal_led", Config::receiver::internal_led);
 
-  Config::transmitter::silent_timeout_sec = ini.GetInteger("transmitter", "silent_timeout_ms", Config::transmitter::silent_timeout_sec);
+  Config::transmitter::silent_timeout_sec = ini.GetInteger("transmitter", "silent_timeout_sec", Config::transmitter::silent_timeout_sec);
   Config::transmitter::minimum_frames = ini.GetInteger("transmitter", "minimum_frames", Config::transmitter::minimum_frames);
   Config::transmitter::discovery = ini.GetBoolean("transmitter", "discovery", Config::transmitter::discovery);
   Config::transmitter::discovery_prefix = ini.Get("transmitter", "discovery_prefix", Config::transmitter::discovery_prefix);
