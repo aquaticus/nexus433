@@ -18,6 +18,8 @@ endif()
 if(${CMAKE_BUILD_TYPE} STREQUAL "RELEASE")
   # warnings as errors for release
   add_compile_options(-Werror)
+  # exception for unknown pragmas (for gcc backward compatibility)
+  add_compile_options(-Wno-unknown-pragmas)
 endif()
 
 file(GLOB SOURCES "*.cpp")
