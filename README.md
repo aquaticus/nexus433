@@ -58,8 +58,9 @@ ASK/OOK modulation. The cost of the receiver is about 1 EUR when ordering direct
 
 There are many vendors that produce temperature sensors compatible with Nexus protocol.
 Here are a few that are confirmed to use Nexus protocol:
-1. **Digoo DG-R8H** &ndash; Temperature and Humidity sensor. Easily available on the internet. Cost 5 EUR.
+1. **Digoo DG-R8H** &ndash; Temperature and Humidity sensor. Easily available on the internet. Cost 5 EUR. No longer available.
 2. **Sencor SWS 21TS** &ndash; temperature only.
+3. **[Explore scientific 1004H](https://amzn.eu/d/fYtivE5)**. Temperature and Humidity sensor. Cost 14 EUR.
 
 ![433 MHz Sensors](pics/433mhz_sensors.jpg)
 
