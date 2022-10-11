@@ -130,16 +130,17 @@ Quality is the percentage of received frames. 100% is when all 12 frames are rec
 
 ### Command line options
 
-| Short | Long        | Description                                                                                                                                                                      |
-|-------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|       | `--verbose` | Enable verbose mode. More information is printed on the screen.                                                                                                                  |
-|       | `--daemon`  | Run in daemon mode. The program works in the background without a console. When verbose mode is on, it will prints messages.                                                     |
-| `-g`  | `--config`  | Path to configuration file. Configuration options from the file got higher priority than command line options. The default config file is `/usr/local/etc/nexus433.ini`.         |
-| `-c`  | `--chip`    | GPIO chip device name, by default `/dev/gpiochip0`.                                                                                                                              |
-| `-n`  | `--pin`     | Pin number to use from specified GPIO chip, default 1. This is not a physical pin number but a number assigned by the block device GPIO. See the discussion below for more info. |
-| `-a`  | `--address` | MQTT broker host, default `127.0.0.1`.                                                                                                                                           |
-| `-p`  | `--port`    | MQTT port number, default `1883`.                                                                                                                                                |
-| `-h`  | `--help`    | Displays help message.                                                                                                                                                           |
+| Short | Long&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description                                                                                                                                                          |
+|-------|------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|       | `--verbose`                                                                        | Enable verbose mode. More information is printed on the screen.                                                                                                      |
+|       | `--daemon`                                                                         | Run in daemon mode. The program works in the background without a console. When verbose mode is on, it will prints messages.                                                 |
+| `-g`  | `--config`                                                                         | Path to configuration file. Configuration options from the file got higher priority than command line options. The default config file is `/usr/local/etc/nexus433.ini`.     |
+| `-c`  | `--chip`                                                                           | GPIO chip device name, by default `/dev/gpiochip0`.                                                                                                                  |
+| `-n`  | `--pin`                                                                            | Pin number to use from specified GPIO chip, default 1. This is not a physical pin number but a number assigned by the block device GPIO. See the discussion below for more info. |
+| `-a`  | `--address`                                                                        | MQTT broker host, default `127.0.0.1`.                                                                                                                               |
+| `-p`  | `--port`                                                                           | MQTT port number, default `1883`.                                                                                                                                    |
+| `-h`  | `--help`                                                                           | Displays help message.                                                                                                                                               |
+
 
 ### Port number and GPIO chip name
 
