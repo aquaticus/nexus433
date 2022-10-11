@@ -348,7 +348,7 @@ sudo make install
 If the default build configuration files are located:
 1. `nexus433` in `/usr/local/bin`
 2. `nexus433.ini.example` in `/usr/local/etc`
-3. `nexus433.service` in `/usr/local/etc/systemd/system/`
+3. `nexus433.service` in `/usr/local/lib/systemd/system/`
 
 You must change the name of `nexus433.ini.example` to `nexus.ini` and fine-tune the options after installation.
 

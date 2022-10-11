@@ -74,7 +74,7 @@ target_compile_options(nexus433 PRIVATE "-Wall;-Wno-psabi" "$<$<CONFIG:DEBUG>:-O
 
 install(TARGETS nexus433 DESTINATION bin)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nexus433.ini.example" DESTINATION "${INSTALL_INI_DIR}")
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nexus433.service" DESTINATION "${CMAKE_INSTALL_PREFIX}/etc/systemd/system/")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nexus433.service" DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/systemd/system/")
 
 include(debian_package.cmake)
 include(CPack)
