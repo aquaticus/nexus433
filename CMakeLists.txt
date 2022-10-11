@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 project (nexus433)
 
-set(INSTALL_INI_DIR "/etc" CACHE STRING "Directory where to look for default INI file" )
+set(INSTALL_INI_DIR "${CMAKE_INSTALL_PREFIX}/etc" CACHE STRING "Directory where to look for default INI file" )
 set(INSTALL_INI_FILENAME "nexus433.ini" CACHE STRING "Default INI file name" )
 set(INSTALL_INI_PATH "${INSTALL_INI_DIR}/${INSTALL_INI_FILENAME}" ) 
 
@@ -74,7 +74,7 @@ target_compile_options(nexus433 PRIVATE "-Wall;-Wno-psabi" "$<$<CONFIG:DEBUG>:-O
 
 install(TARGETS nexus433 DESTINATION bin)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nexus433.ini.example" DESTINATION "${INSTALL_INI_DIR}")
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nexus433.service" DESTINATION "/etc/systemd/system/")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nexus433.service" DESTINATION "${CMAKE_INSTALL_PREFIX}/etc/systemd/system/")
 
 include(debian_package.cmake)
 include(CPack)
