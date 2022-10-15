@@ -60,7 +60,6 @@ add_custom_target(version
                    -P ${CMAKE_SOURCE_DIR}/version.cmake
   )
 
-get_filename_component(NEXUS433_BINARY_PATH "${CMAKE_INSTALL_PREFIX}/bin/nexus433" ABSOLUTE)
 configure_file(nexus433.ini.in nexus433.ini.example)
 configure_file(board.h.in board.h)
 configure_file(nexus433.service.in nexus433.service)
@@ -72,7 +71,7 @@ target_include_directories(nexus433 PRIVATE ${CMAKE_BINARY_DIR})
 target_link_libraries (nexus433  ${LIBS})
 target_compile_options(nexus433 PRIVATE "-Wall;-Wno-psabi" "$<$<CONFIG:DEBUG>:-O0;-g3;-ggdb;-DDEBUG>")
 
-install(TARGETS nexus433 DESTINATION bin)
+install(TARGETS nexus433 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nexus433.ini.example" DESTINATION "${INSTALL_INI_DIR}")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nexus433.service" DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/systemd/system/")
 
