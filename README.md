@@ -275,7 +275,7 @@ Download the appropriate package. Check the board name and platform. _armhf_ mea
 This step is optional but highly recommended. First download the signing key from a key server (only once).
 You need `gpg` installed (`sudo apt install gpg`).
 ```bash
-gpg --keyserver pgp.mit.edu --recv-key 9E4441F6F3B07930
+gpg --keyserver pgp.mit.edu --recv-key F3B07930
 ```
 
 Now install the tool to verify Debian packages.
