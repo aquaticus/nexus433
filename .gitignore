@@ -15,6 +15,9 @@ nexus433.ini
 nexus433.service
 version.h
 build/**
+.idea/**
+.cmake/**
+cmake-build-*/**
 
 # Prerequisites
 *.d
