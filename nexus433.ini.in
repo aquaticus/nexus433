@@ -36,6 +36,8 @@
 ;tolerance_us=300
 ; internal led device located in /sys/class/leds
 ; internal_led=""
+; use polling mode - avoids using gpiod events and uses more CPU
+;polling=0
 
 [transmitter]
 ; timeout in seconds. If transmitter does not send any data within that period it's reported as offline

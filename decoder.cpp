@@ -90,7 +90,20 @@ void Decoder::ThreadFunc()
 
 void Decoder::ThreadFunc()
 {
-    DEBUG_PRINTF("DEBUG: Decoder thread started\n");
+    if (1 == m_Polling)
+    {
+        PollingReader();
+    }
+    else
+    {
+        EventReader();
+    }
+}
+
+
+void Decoder::PollingReader()
+{
+    DEBUG_PRINTF("DEBUG: Poll Decoder thread started\n");
 
     auto prev = std::chrono::high_resolution_clock::now();
     auto now=prev;
@@ -117,6 +130,54 @@ void Decoder::ThreadFunc()
         }
 
         prev_value = value;
+
+    } while (std::future_status::timeout == m_Future.wait_for(std::chrono::microseconds(m_ResolutionUs)));
+
+    DEBUG_PRINTF("DEBUG: Thread function finished\n");
+}
+
+
+void Decoder::EventReader()
+{
+    DEBUG_PRINTF("DEBUG: Event Decoder thread started\n");
+    timespec timeout = { .tv_sec = 0, .tv_nsec = 50000000 };
+    std::chrono::time_point<std::chrono::high_resolution_clock> now;
+    auto prev = std::chrono::high_resolution_clock::now();
+    now = prev;
+    int wait_ok = 0;
+    int read_ok = 0;
+    struct gpiod_line_event l_event;
+
+    do
+    {
+        wait_ok = gpiod_line_event_wait(m_Line, &timeout);
+
+        if (-1 == wait_ok)
+        {
+            printf("Error waiting for event. errno: %d\n", errno);
+            m_ErrorStop = true;
+            return;
+        }
+
+        if (1 == wait_ok) {
+            // we have event
+            read_ok = gpiod_line_event_read(m_Line, &l_event);
+
+            if (-1 == read_ok)
+            {
+                printf("Error reading event. errno: %d\n", errno);
+                m_ErrorStop = true;
+                return;
+            }
+
+            auto d = std::chrono::seconds{l_event.ts.tv_sec} + std::chrono::nanoseconds{l_event.ts.tv_nsec};
+            std::chrono::high_resolution_clock::time_point tp{d};
+            now = tp;
+            long delta = std::chrono::duration_cast<std::chrono::microseconds>(now-prev).count();
+            prev = now;
+
+            Decode(l_event.event_type==1, delta);
+        }
 
     } while (std::future_status::timeout == m_Future.wait_for(std::chrono::microseconds(m_ResolutionUs)));
 

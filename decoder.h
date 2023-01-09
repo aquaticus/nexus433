@@ -37,11 +37,12 @@ public:
 		STATE_PULSE_END,
 	} STATES;
 
-	Decoder(IStorage& s, gpiod_line *line, int tolerance, int precision):
+	Decoder(IStorage& s, gpiod_line *line, int tolerance, int precision, int polling):
 	m_Storage(s),
     m_Line(line),
 	m_ToleranceUs(tolerance),
-	m_ResolutionUs(precision)
+	m_ResolutionUs(precision),
+	m_Polling(polling)
 	{
 		m_pThread = NULL;
 		m_ErrorStop = false;
@@ -67,6 +68,8 @@ public:
 
 protected:
 	void ThreadFunc();
+	void PollingReader();
+	void EventReader();
 	void Decode(bool risingEdge, long long delta);
 
 	IStorage& m_Storage;
@@ -79,6 +82,7 @@ protected:
 	gpiod_line* m_Line;
 	int m_ToleranceUs; // +/- tolerance in microseconds, default 150
 	int m_ResolutionUs; // how long go to sleep in microseconds. Lower number (0 best) better precision but higher system load
+	int m_Polling; // 1 to use polling, 0 to use events
 	std::atomic<bool> m_ErrorStop;
 	std::future<void> m_Future;
 };

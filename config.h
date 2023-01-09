@@ -47,6 +47,7 @@ public:
 
   struct receiver
   {
+    static int polling;
     static std::string chip;
     static int pin;
     static int resolution_us;

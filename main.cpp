@@ -355,13 +355,29 @@ int main(int argc, char** argv)
         return -2;
     }
 
-    rv = gpiod_line_request_input(line, NEXUS433);
-    if (-1 == rv)
+    if (1 == Config::receiver::polling)
     {
-        gpiod_line_release(line);
-        gpiod_chip_close(chip);
-        std::cerr << "Request for line input failed." << std::endl;
-        return -3;
+        std::cout << "Decoding using polling" << std::endl;
+        rv = gpiod_line_request_input(line, NEXUS433);
+        if (-1 == rv)
+        {
+            gpiod_line_release(line);
+            gpiod_chip_close(chip);
+            std::cerr << "Request for line input failed." << std::endl;
+            return -3;
+        }
+    }
+    else
+    {
+        std::cout << "Decoding using events" << std::endl;
+        rv = gpiod_line_request_both_edges_events(line, NEXUS433);
+        if (-1 == rv)
+        {
+            gpiod_line_release(line);
+            gpiod_chip_close(chip);
+            std::cerr << "Request for line events failed." << std::endl;
+            return -3;
+        }
     }
 
     Led led;
@@ -391,7 +407,7 @@ int main(int argc, char** argv)
         return -7;
     }
 
-    Decoder decoder(storage, line, Config::receiver::tolerance_us, Config::receiver::resolution_us);
+    Decoder decoder(storage, line, Config::receiver::tolerance_us, Config::receiver::resolution_us, Config::receiver::polling);
 
     g_pDecoder = &decoder;
     std::signal(SIGINT, terminate_handler);
