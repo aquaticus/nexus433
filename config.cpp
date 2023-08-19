@@ -39,6 +39,7 @@ std::string Config::mqtt::certfile;
 std::string Config::mqtt::keyfile;
 std::string Config::mqtt::keypass;
 
+int Config::receiver::polling = 0;
 string Config::receiver::chip = GPIOD_DEFAULT_DEVICE;
 int Config::receiver::pin = GPIOD_DEFAULT_PIN;
 int Config::receiver::resolution_us = 1;
@@ -83,6 +84,7 @@ bool Config::Load(const char *filename)
   Config::mqtt::keyfile = ini.Get("mqtt", "keyfile", "");
   Config::mqtt::keypass = ini.Get("mqtt", "keypass", "");
 
+  Config::receiver::polling = ini.GetInteger("receiver", "polling", Config::receiver::polling);
   Config::receiver::chip = ini.Get("receiver", "chip", Config::receiver::chip);
   Config::receiver::pin = ini.GetInteger("receiver", "pin", Config::receiver::pin);
   Config::receiver::resolution_us = ini.GetInteger("receiver", "resolution_us", Config::receiver::resolution_us);
