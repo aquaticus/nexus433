@@ -304,8 +304,9 @@ int main(int argc, char** argv)
         syslog (LOG_NOTICE, NEXUS433 " daemon started.");
     }
 
+
     // if config was specified check if file exists
-    // in daemon mode path are relative to root, so better pass absolute path
+    // in daemon mode paths are relative to root, so better pass absolute path
     if (config && access(config, F_OK) == -1)
     {
         std::cerr << "No access to configuration file " << config << std::endl;
@@ -355,9 +356,9 @@ int main(int argc, char** argv)
         return -2;
     }
 
-    if (1 == Config::receiver::polling)
+    if (Config::receiver::polling)
     {
-        std::cout << "Decoding using polling" << std::endl;
+        std::cout << "Decoding mode: POLLING" << std::endl;
         rv = gpiod_line_request_input(line, NEXUS433);
         if (-1 == rv)
         {
@@ -369,7 +370,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        std::cout << "Decoding using events" << std::endl;
+        std::cout << "Decoding mode: EVENTS" << std::endl;
         rv = gpiod_line_request_both_edges_events(line, NEXUS433);
         if (-1 == rv)
         {

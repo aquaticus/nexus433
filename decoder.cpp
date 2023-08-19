@@ -39,7 +39,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 void Decoder::Start()
 {
-    VERBOSE_PRINTF("Decoder resolution: %d µs; tolerance: %d µs\n", m_ResolutionUs, m_ToleranceUs);
+    if(m_Polling)
+    {
+        // Meaningful for pooling mode only
+        VERBOSE_PRINTF("Pooling mode decoder resolution: %d µs; tolerance: %d µs\n", m_ResolutionUs, m_ToleranceUs);
+    }
     m_ErrorStop = false;
     m_Future = std::move(m_StopFlag.get_future());
     m_pThread = new std::thread([this]	{ this->ThreadFunc();} );
@@ -90,7 +94,7 @@ void Decoder::ThreadFunc()
 
 void Decoder::ThreadFunc()
 {
-    if (1 == m_Polling)
+    if (m_Polling)
     {
         PollingReader();
     }

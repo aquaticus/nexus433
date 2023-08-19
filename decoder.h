@@ -37,7 +37,7 @@ public:
 		STATE_PULSE_END,
 	} STATES;
 
-	Decoder(IStorage& s, gpiod_line *line, int tolerance, int precision, int polling):
+	Decoder(IStorage& s, gpiod_line *line, int tolerance, int precision, bool polling):
 	m_Storage(s),
     m_Line(line),
 	m_ToleranceUs(tolerance),
@@ -82,7 +82,7 @@ protected:
 	gpiod_line* m_Line;
 	int m_ToleranceUs; // +/- tolerance in microseconds, default 150
 	int m_ResolutionUs; // how long go to sleep in microseconds. Lower number (0 best) better precision but higher system load
-	int m_Polling; // 1 to use polling, 0 to use events
+	bool m_Polling; // true to use polling, false to use events
 	std::atomic<bool> m_ErrorStop;
 	std::future<void> m_Future;
 };
