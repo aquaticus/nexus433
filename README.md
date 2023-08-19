@@ -176,7 +176,7 @@ Comments must begin with `;`.
 | Key                | Type   | Default       | Description                                                                                |
 |--------------------|--------|---------------|--------------------------------------------------------------------------------------------|
 | `silent_timeout`   | number | 90            | When no data is received during this time in seconds, transmitters are treated as offline. |
-| `minimum_frames`   | number | 2             | Minimum number of data frames to accept transmission as valid.                             |_
+| `minimum_frames`   | number | 2             | Minimum number of data frames to accept transmission as valid.                             |
 | `battery_normal`   | string | 100           | String sent in JSON MQTT message when the battery level is normal.                         |
 | `battery_low`      | string | 0             | String sent in JSON MQTT message when the battery level is low.                            |
 | `discovery`        | bool   | false         | Enable or disable Home Assistant MQTT sensor discovery.                                    |
@@ -188,9 +188,10 @@ Comments must begin with `;`.
 |-----------------|--------|----------------|--------------------------------------------------------------------------------------------|
 | `chip`          | string | /dev/gpiochip0 | GPIO device                                                                                |
 | `pin`           | number | 1              | I/O pin number                                                                             |
-| `resolution_us` | number | 1              | decoder resolution in microseconds. Lower is better but a higher system load.                |
-| `tolerance_us`  | number | 300            | ± tolerance of pulse length in microseconds.                                               |
+| `resolution_us` | number | 1              | decoder resolution in microseconds in polling mode. Lower is better but a higher system load. _Valind only when `pooling=true`_             |
+| `tolerance_us`  | number | 300            | ± tolerance of pulse length in microseconds in polling mode. _Valind only when `pooling=true`_                                              |
 | `internal_led`  | string |                | LED device name from `/sys/class/leds` used to indicate new readings; disabled by default. |
+| `polling`       | bool   | false          | Use polling mode; it consumes much more processor power. Enable if you got reception problems in default mode.|
 
 #### `[mqtt]`
 
@@ -578,6 +579,19 @@ If you got problems receiving proper data from sensors you can do one of the fol
 
 # CPU usage
 
+The program can operate in two modes:
+1. Pooling _(default for version <2.0)_
+2. Events _(default)_
+
+The first one is guaranteed to work on any board. In this mode radio data is read in infinitive loop. The side effect is heavy CPU use. 
+
+The second one is based on interrupts. Simply the kernel sends an event when signal edge is detected. It is much more effective than pooling mode, 
+CPU usage can drop from 40% to 1-2%. Unfortunately, it depends on the hardware of the board. It may happen that events are not generated fast enough 
+which results in serious reception problems. In that case switch to polling mode setting `pooling=true` in the configuration file.
+This is default mode of operation; it works for sure on RaspberryPI.
+
+## Pooling mode optimization
+
 Linux is not a real-time operating system. You never know how much time the scheduler assigns to the application.
 
 If the system is not very busy, the application got enough time to process the entire transmission more or less in real-time. If the system is heavily loaded the program can easily miss transmitted bits.
@@ -590,4 +604,3 @@ For now the only solution (but unfortunately not guaranteed 100% success) is to 
 
 3. Run the application on a separate system that is either dedicated to 433MHz reception or does not run too many other apps (but that makes nexus433 quite obsolete because you can use a cheaper dedicated board just for 433MHz).
 
-To solve the problem, a kernel device driver is needed and the entire signal processing should be made there.
