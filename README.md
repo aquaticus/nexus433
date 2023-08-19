@@ -188,8 +188,8 @@ Comments must begin with `;`.
 |-----------------|--------|----------------|--------------------------------------------------------------------------------------------|
 | `chip`          | string | /dev/gpiochip0 | GPIO device                                                                                |
 | `pin`           | number | 1              | I/O pin number                                                                             |
-| `resolution_us` | number | 1              | decoder resolution in microseconds in polling mode. Lower is better but a higher system load. _Valind only when `pooling=true`_             |
-| `tolerance_us`  | number | 300            | ± tolerance of pulse length in microseconds in polling mode. _Valind only when `pooling=true`_                                              |
+| `resolution_us` | number | 1              | decoder resolution in microseconds in polling mode. Lower is better but a higher system load. _Valid only when `pooling=true`_             |
+| `tolerance_us`  | number | 300            | ± tolerance of pulse length in microseconds in polling mode. _Valid only when `pooling=true`_                                              |
 | `internal_led`  | string |                | LED device name from `/sys/class/leds` used to indicate new readings; disabled by default. |
 | `polling`       | bool   | false          | Use polling mode; it consumes much more processor power. Enable if you got reception problems in default mode.|
 
