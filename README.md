@@ -80,8 +80,8 @@ The meaning of bits:
 1. *ID* &ndash; unique ID; Sencor generates a new ID when the battery is changed, Digoo keeps the same ID all the time.
 2. *Battery* &ndash; low battery indicator; 1 &ndash; battery ok, 0 &ndash; low battery
 3. *Channel* &ndash; channel number, 0 &ndash; first channel, 1 &ndash; second and so on.
-4. *Temperature* &ndash; signed temperature in Celsius degrees.
-5. *Humidity* &ndash; humidity
+4. *Temperature* &ndash; signed (ones' complement) integer; temperature in Celsius degrees scaled by 10.
+5. *Humidity* &ndash; unisgned integer; humidity
 
 Every bit starts with 500 µs high pulse. The length of the following low
 state decides if this is `1` (2000 µs) or `0` (1000 µs).
